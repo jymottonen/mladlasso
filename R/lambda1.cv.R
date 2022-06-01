@@ -9,6 +9,12 @@
 #' @param lambda1.max the maximum value of the grid of lambda1's.
 #' @param len1 the number of values in the grid of lambda1's
 #' @param lambda2 the (fixed) value of the tuning parameter lambda2. 
+#' @param lpen gives the lasso penalized coefficients. For example, lpen=c(2,5:8)
+#' means that the coefficient vectors beta2, beta5,...,beta8 are penalized.
+#' @param fpen a list of blocks of fusion penalized coefficients. For example, 
+#' fpen=list(2:5,10:20) means that the fusion penalty is 
+#' \code{lambda2*[||beta_3-beta_2||+...+||beta_5-beta_4||+
+#' ||beta_{11}-beta_{10}||+...+||beta_{20}-beta_{19}||]}
 #' @details 
 #' Here are the details of the function...
 #' @return A list with the following components
@@ -49,7 +55,8 @@
 #' plot(out)
 #' }
 #' @export
-lambda1.cv<-function(Y,X,lambda1.min=0,lambda1.max=5,len1=10,lambda2=0)
+lambda1.cv<-function(Y,X,lambda1.min=0,lambda1.max=5,len1=10,lambda2=0,
+                     lpen=1:dim(X)[2],fpen=list(1:dim(X)[2]))
 {
   #
   # 5-fold cross-validation for lambda1 with lambda2 fixed
@@ -95,7 +102,7 @@ lambda1.cv<-function(Y,X,lambda1.min=0,lambda1.max=5,len1=10,lambda2=0)
     for(j in 1:5)
     {   
       mod1<-fusedladlasso(Y[groups!=j,],X[groups!=j,],
-                          lambda1=lbd1[i1],lambda2=lambda2)
+                          lambda1=lbd1[i1],lambda2=lambda2,lpen=lpen,fpen=fpen)
       beta<-mod1$beta
       E<-Y[groups==j,]-cbind(1,X[groups==j,])%*%beta
       mse1[j]<-mean(sqrt(diag(E%*%t(E))))
@@ -105,7 +112,7 @@ lambda1.cv<-function(Y,X,lambda1.min=0,lambda1.max=5,len1=10,lambda2=0)
     cv1[i1]<-mean(mse1)
     cv2[i1]<-mean(mse2)
     cv3[i1]<-mean(mse3)            
-    mod1<-fusedladlasso(Y,X,lambda1=lbd1[i1],lambda2=lambda2)
+    mod1<-fusedladlasso(Y,X,lambda1=lbd1[i1],lambda2=lambda2,lpen=lpen,fpen=fpen)
     beta<-mod1$beta  
     norms<-sqrt(diag(beta%*%t(beta)))
     h[i1]<-sum(norms>1e-6)-1

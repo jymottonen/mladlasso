@@ -4,16 +4,33 @@
 \alias{fusedladlasso}
 \title{Multivariate fused LAD-lasso}
 \usage{
-fusedladlasso(Y, X, lambda1 = 0, lambda2 = 0)
+fusedladlasso(
+  Y,
+  X,
+  lambda1 = 0,
+  lambda2 = 0,
+  lpen = 1:dim(X)[2],
+  fpen = list(1:dim(X)[2])
+)
 }
 \arguments{
-\item{Y}{an nxq matrix}
+\item{Y}{an nxq matrix of responses. The ith row contains the q-variate response
+of the ith individual.}
 
-\item{X}{an nxp matrix}
+\item{X}{an nxp matrix of p explaining variables, The ith row contains the values
+of p explaining variables for the ith individual.}
 
 \item{lambda1}{the tuning parameter for the LAD-penalty}
 
 \item{lambda2}{the tuning parameter for the fusion-penalty}
+
+\item{lpen}{gives the lasso penalized coefficients. For example, lpen=c(2,5:8)
+means that the coefficient vectors beta2, beta5,...,beta8 are penalized.}
+
+\item{fpen}{a list of blocks of fusion penalized coefficients. For example,
+fpen=list(2:5,10:20) means that the fusion penalty is
+\code{lambda2*[||beta_3-beta_2||+...+||beta_5-beta_4||+
+||beta_{11}-beta_{10}||+...+||beta_{20}-beta_{19}||]}}
 }
 \value{
 A list containing the following components:
