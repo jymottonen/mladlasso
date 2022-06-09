@@ -117,9 +117,9 @@ lambda1.cv<-function(Y,X,lambda1.min=0,lambda1.max=5,len1=10,lambda2=0,
     norms<-sqrt(diag(beta%*%t(beta)))
     h[i1]<-sum(norms>1e-6)-1
     runt=as.numeric(Sys.time()-begt)
-    print(paste("i1=",i1,"lambda1=",lbd1[i1],"lambda2=",lambda2,
+    print(paste("i1=",i1,"lambda1=",lbd1[i1],
                 "cv1=",cv1[i1],"cv2=",cv2[i1],"cv3=",cv3[i1],
-                "h=",h[i1],"runtime=",runt))
+                "h=",h[i1]))
   }
   ind.min1<-which.min(cv1)
   ind.min2<-which.min(cv2)
