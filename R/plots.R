@@ -18,7 +18,7 @@ plot.fusedladlasso<-function(x, ...)
   plot(1:p,beta[,1],ylim=c(min(beta),max(beta)),cex=0.5,pch=1,col=1,
        xlab="index",ylab="beta")
   for(j in 2:q)  
-    points(1:p,beta[,j],cex=0.5,pch=j,col=j)
+    points(1:p,beta[,j],cex=1,pch=j,col=j)
   for(i in 1:p){
     lines(c(i,i),c(beta.min[i],0))
     lines(c(i,i),c(beta.max[i],0))
