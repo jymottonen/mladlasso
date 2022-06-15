@@ -12,3 +12,5 @@ RoxygenNote: 7.2.0
 Depends: 
     R (>= 2.10), MNM, matrixStats
 LazyData: true
+URL: https://github.com/jymottonen/mladlasso
+BugReports: https://github.com/jymottonen/mladlasso/issues
