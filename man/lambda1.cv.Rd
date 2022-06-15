@@ -41,9 +41,9 @@ A list with the following components
 \describe{
 \item{lambda1}{the grid of lambda1's. The length lambda1 is len1}
 \item{lambda2}{the tuning parameter lambda2.}
-\item{cv}{list of values of CV precision measures.
-The ith component vector gives the values of the ith
-precision measure in the grid points.}
+\item{cv}{list of values of CV precision measures in the grid points.
+The first component vector gives the mean absolute errors (MAE) and the
+second component vector gives the mean squared errors (MSE).}
 \item{lbdmin}{vector of values of lambda1 that minimize
 the precision measures. The ith component
 gives the value of lambda1 that minimizes the ith
@@ -54,7 +54,7 @@ minimizes the ith precision measure is lambda1.min,
 tpoint[i]=2, if the value of lambda1 that minimizes the ith
 precision measure is a turning point,  tpoint[i]=3, if the value
 of lambda1 that minimizes the ith precision measure is lambda1.max.}
-\item{h}{the number non-zero coefficients.}
+\item{h}{the number non-zero coefficient vectors.}
 }
 }
 \description{
