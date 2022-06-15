@@ -42,18 +42,13 @@ plot.cv<-function(x, ...)
   lambda2<-x$lambda2
   cv1<-x$cv[[1]]
   cv2<-x$cv[[2]]
-  cv3<-x$cv[[3]]
-  main.txt<-paste("CV1: lambda2=",x$lambda2,sep="")
-  plot(lambda1,cv1,main=main.txt,type="l")
+  main.txt = substitute(paste("Cross-validation (MAE): ", lambda[2], "=", lambda2, sep=""))
+  plot(lambda1,cv1,main=main.txt,type="l",xlab=expression(lambda[1]),ylab="MAE")
   abline(v=x$lbdmin[1],lty=2)
   readline(prompt = "Pause. Press <Enter> to continue...")
-  main.txt<-paste("CV2: lambda2=",x$lambda2,sep="")
-  plot(lambda1,cv2,main=main.txt,type="l")
+  main.txt = substitute(paste("Cross-validation (MSE): ", lambda[2], "=", lambda2, sep=""))
+  plot(lambda1,cv2,main=main.txt,type="l",xlab=expression(lambda[1]),ylab="MSE")
   abline(v=x$lbdmin[2],lty=2)
-  readline(prompt = "Pause. Press <Enter> to continue...")
-  main.txt<-paste("CV3: lambda2=",x$lambda2,sep="")
-  plot(lambda1,cv3,main=main.txt,type="l")
-  abline(v=x$lbdmin[3],lty=2)
 }
 
 

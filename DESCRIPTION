@@ -5,10 +5,12 @@ Authors@R:
     person("Jyrki", "Mottonen", , "jyrki.mottonen@helsinki.fi", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-6270-2556"))
 Description: What the package does (one paragraph).
-License: GPL (>= 3)
+License: GPL (>= 3)  + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.0
 Depends: 
     R (>= 2.10), MNM, matrixStats
 LazyData: true
+URL: https://github.com/jymottonen/mladlasso
+BugReports: https://github.com/jymottonen/mladlasso/issues

@@ -21,9 +21,9 @@
 #' \describe{
 #' \item{lambda1}{the grid of lambda1's. The length lambda1 is len1}
 #' \item{lambda2}{the tuning parameter lambda2.}
-#' \item{cv}{list of values of CV precision measures. 
-#' The ith component vector gives the values of the ith 
-#' precision measure in the grid points.}
+#' \item{cv}{list of values of CV precision measures in the grid points.
+#' The first component vector gives the mean absolute errors (MAE) and the  
+#' second component vector gives the mean squared errors (MSE).}
 #' \item{lbdmin}{vector of values of lambda1 that minimize 
 #' the precision measures. The ith component 
 #' gives the value of lambda1 that minimizes the ith 
@@ -34,7 +34,7 @@
 #' tpoint\[i\]=2, if the value of lambda1 that minimizes the ith 
 #' precision measure is a turning point,  tpoint\[i\]=3, if the value 
 #' of lambda1 that minimizes the ith precision measure is lambda1.max.}
-#' \item{h}{the number non-zero coefficients.}
+#' \item{h}{the number non-zero coefficient vectors.}
 #' }
 #' @references 
 #' Oja, H. (2010), \emph{Multivariate Nonparametric Methods with R. 
@@ -81,65 +81,48 @@ lambda1.cv<-function(Y,X,lambda1.min=0,lambda1.max=5,len1=10,lambda2=0,
     m[1:jakoj]<-m[1:jakoj]+1
   }
   
-  cv1<-rep(0,len1)
-  cv2<-rep(0,len1)
-  cv3<-rep(0,len1)
+  cv.mae<-rep(0,len1)
+  cv.mse<-rep(0,len1)
   h<-rep(0,len1)
-  mse1<-rep(0,5)
-  mse2<-rep(0,5)
-  mse3<-rep(0,5)
-  bisq<-function(E)
-  {
-    absr<-sqrt(diag(E%*%t(E)))
-    k<-2
-    1*(absr>k)+(1-(1-(absr/k)^2)^3)*(absr<=k)
-  }
-  
+  mae<-rep(0,5)
+  mse<-rep(0,5)
+
   groups<-rep(1:5,times=m)  
   for(i1 in 1:len1)
   {
-    begt=Sys.time()
     for(j in 1:5)
     {   
       mod1<-fusedladlasso(Y[groups!=j,],X[groups!=j,],
                           lambda1=lbd1[i1],lambda2=lambda2,lpen=lpen,fpen=fpen)
       beta<-mod1$beta
       E<-Y[groups==j,]-cbind(1,X[groups==j,])%*%beta
-      mse1[j]<-mean(sqrt(diag(E%*%t(E))))
-      mse2[j]<-mean(diag(E%*%t(E)))
-      mse3[j]<-mean(bisq(E))
+      mae[j]<-mean(sqrt(diag(E%*%t(E))))
+      mse[j]<-mean(diag(E%*%t(E)))
     }
-    cv1[i1]<-mean(mse1)
-    cv2[i1]<-mean(mse2)
-    cv3[i1]<-mean(mse3)            
+    cv.mae[i1]<-mean(mae)
+    cv.mse[i1]<-mean(mse)
     mod1<-fusedladlasso(Y,X,lambda1=lbd1[i1],lambda2=lambda2,lpen=lpen,fpen=fpen)
     beta<-mod1$beta  
     norms<-sqrt(diag(beta%*%t(beta)))
     h[i1]<-sum(norms>1e-6)-1
-    runt=as.numeric(Sys.time()-begt)
     print(paste("i1=",i1,"lambda1=",lbd1[i1],"lambda2=",lambda2,
-                "cv1=",cv1[i1],"cv2=",cv2[i1],"cv3=",cv3[i1],
-                "h=",h[i1],"runtime=",runt))
+                "cv.mae=",cv.mae[i1],"cv.mse=",cv.mse[i1],
+                "h=",h[i1]))
   }
-  ind.min1<-which.min(cv1)
-  ind.min2<-which.min(cv2)
-  ind.min3<-which.min(cv3)
-  lbdmin1<-lbd1[ind.min1]
-  lbdmin2<-lbd1[ind.min2]
-  lbdmin3<-lbd1[ind.min3]
-  if(ind.min1==1)tpoint1<-1
-  else if(ind.min1==length(cv1))tpoint1<-3
-  else tpoint1<-2
-  if(ind.min2==1)tpoint2<-1
-  else if(ind.min2==length(cv2))tpoint2<-3
-  else tpoint2<-2
-  if(ind.min3==1)tpoint3<-1
-  else if(ind.min3==length(cv3))tpoint3<-3
-  else tpoint3<-2
+  ind.min.mae<-which.min(cv.mae)
+  ind.min.mse<-which.min(cv.mse)
+  lbdmin.mae<-lbd1[ind.min.mae]
+  lbdmin.mse<-lbd1[ind.min.mse]
+  if(ind.min.mae==1)tpoint.mae<-1
+  else if(ind.min.mae==length(cv.mae))tpoint.mae<-3
+  else tpoint.mae<-2
+  if(ind.min.mse==1)tpoint.mse<-1
+  else if(ind.min.mse==length(cv.mse))tpoint.mse<-3
+  else tpoint.mse<-2
   options(warn=warn.init)
-  out<-list(lambda1=lbd1,lambda2=lambda2,cv=list(cv1,cv2,cv3),
-            lbdmin=c(lbdmin1,lbdmin2,lbdmin3),
-            tpoint=c(tpoint1,tpoint2,tpoint3),h=h)
+  out<-list(lambda1=lbd1,lambda2=lambda2,cv=list(cv.mae,cv.mse),
+            lbdmin=c(lbdmin.mae,lbdmin.mse),
+            tpoint=c(tpoint.mae,tpoint.mse),h=h)
   class(out) <- "cv"
   return(out)
 }
