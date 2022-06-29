@@ -8,6 +8,14 @@
 \description{
 What the package does (one paragraph).
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/jymottonen/mladlasso}
+  \item Report bugs at \url{https://github.com/jymottonen/mladlasso/issues}
+}
+
+}
 \author{
 \strong{Maintainer}: Jyrki Mottonen \email{jyrki.mottonen@helsinki.fi} (\href{https://orcid.org/0000-0002-6270-2556}{ORCID})
 
