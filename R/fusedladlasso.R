@@ -60,6 +60,10 @@ fusedladlasso<-function(Y, X, lambda1=0, lambda2=0,
   q<-ncol(Y)     #The number of traits
   p<-ncol(X)     #The number of explaining variables
   n<-nrow(Y)     #The number of cases   
+  if(is.null(colnames(Y)))
+    colnames(Y)<-paste("y",1:q,sep="")
+  if(is.null(colnames(X)))
+    colnames(X)<-paste("x",1:p,sep="")
   lpen<-sort(lpen)
   fused.id<-NULL
   for(i in 1:nblocks)
