@@ -11,14 +11,14 @@
 #' @details 
 #' Here are the details of the function...
 #' @export
-plot.fusedladlasso<-function(x, ynames=colnames(x$beta[-1,]), ylim=NULL, line=line, ...)
+plot.fusedladlasso<-function(x, ynames=colnames(x$beta[-1,]), ylim=NA, line=NA, ...)
 {
   beta<-x$beta[-1,]
   p<-dim(beta)[1]
   q<-dim(beta)[2]
   beta.min<-apply(beta,1,min)
   beta.max<-apply(beta,1,max)
-  if(is.null(ylim))
+  if(is.na(ylim))
     ylim<-c(min(beta),max(beta))
   plot(1:p,beta[,1],ylim=ylim,cex=0.5,pch=1,col=1,
        xlab="Explaining variable",ylab="",xaxt="n")

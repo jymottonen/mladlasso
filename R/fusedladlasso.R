@@ -117,8 +117,8 @@ fusedladlasso<-function(Y, X, lambda1=0, lambda2=0,
     stop("lambda1 and lambda2 should be non-negative numbers")
   
   begt=Sys.time()
-  mod<-mv.l1lm(y~-1+x,score="s",stand="o",maxiter = 10000,
-               eps = 1e-8, eps.S = 1e-8)
+  mod<-mv.l1lm(y~-1+x,score="s",stand="o",maxiter = 20000,
+               eps = 1e-10, eps.S = 1e-10)
   beta<-as.matrix(coefficients(mod))
   runt=as.numeric(Sys.time()-begt)
   rownames(beta)<-c("Int",colnames(x)[-1])
