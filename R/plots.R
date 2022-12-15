@@ -11,17 +11,29 @@
 #' @details 
 #' Here are the details of the function...
 #' @export
-plot.fusedladlasso<-function(x, ynames=colnames(x$beta[-1,]), ylim=NA, line=NA, ...)
+plot.fusedladlasso<-function(x, ynames=colnames(x$beta[-1,]), xlab=NA, ylim=NA, line=NA, 
+                             output="monitor", lambda1=x$lambda1, lambda2=x$lambda2, 
+                             file=NA, width=NA, height=NA, ...)
 {
   beta<-x$beta[-1,]
   p<-dim(beta)[1]
   q<-dim(beta)[2]
   beta.min<-apply(beta,1,min)
   beta.max<-apply(beta,1,max)
-  if(is.na(ylim))
+  if(any(is.na(ylim)))
     ylim<-c(min(beta),max(beta))
+  if(output=="PDF")
+  {
+    if(is.na(width))width<-7
+    if(is.na(height))height<-7
+    if(is.na(file))file<-"Rplots.pdf"
+    pdf(file=file,width=width,height=height)
+  }
+  if(is.na(xlab))
+    xlab<-"Explaining variable"
   plot(1:p,beta[,1],ylim=ylim,cex=0.5,pch=1,col=1,
-       xlab="Explaining variable",ylab="",xaxt="n")
+       xlab=xlab,ylab="",xaxt="n")
+  #mtext(bquote(lambda[1] == .(lambda1) ~ "," ~ lambda[2] == .(lambda2)),cex=1.5)
   title(ylab = expression(beta), line=line)
   axis(1,1:p,paste("x",1:p,sep=""))
   for(j in 2:q)  
@@ -31,6 +43,7 @@ plot.fusedladlasso<-function(x, ynames=colnames(x$beta[-1,]), ylim=NA, line=NA, 
     lines(c(i,i),c(beta.max[i],0))
   abline(h=0,xpd=FALSE)
   }
+  if(output=="PDF")dev.off()
 }
 
 #' plot.cv

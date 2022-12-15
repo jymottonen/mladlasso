@@ -138,7 +138,8 @@ fusedlasso<-function(Y, X, lambda1=0, lambda2=0,
   begt=Sys.time()
   if(lambda1==0 & lambda2==0){
     X<-cbind(1,X)
-    B<-solve(t(X)%*%X)%*%t(X)%*%Y
+    require(MASS)
+    B<-ginv(t(X)%*%X)%*%t(X)%*%Y
   }
   else{
     res<-optim(beta0, v, dv, method="BFGS",
