@@ -19,6 +19,7 @@
 #' @return A list containing the following components:
 #' \describe{
 #' \item{beta}{the fused LAD-lasso regression coefficient matrix.}
+#' \item{residuals}{the residuals.}
 #' \item{runtime}{the runtime of the function.}
 #' }
 #' @references 
@@ -60,6 +61,8 @@ fusedladlasso<-function(Y, X, lambda1=0, lambda2=0,
   q<-ncol(Y)     #The number of traits
   p<-ncol(X)     #The number of explaining variables
   n<-nrow(Y)     #The number of cases   
+  Y0<-Y
+  X0<-X
   if(is.null(colnames(Y)))
     colnames(Y)<-paste("y",1:q,sep="")
   if(is.null(colnames(X)))
@@ -120,10 +123,11 @@ fusedladlasso<-function(Y, X, lambda1=0, lambda2=0,
   mod<-mv.l1lm(y~-1+x,score="s",stand="o",maxiter = 20000,
                eps = 1e-10, eps.S = 1e-10)
   beta<-as.matrix(coefficients(mod))
+  res<-Y0-cbind(1,X0)%*%beta
   runt=as.numeric(Sys.time()-begt)
   rownames(beta)<-c("Int",colnames(x)[-1])
   colnames(beta)<-colnames(y)
-  fit<-list(beta=beta,runtime=runt)
+  fit<-list(beta=beta,residuals=res,lambda1=lambda1,lambda2=lambda2,runtime=runt)
   class(fit) <- "fusedladlasso"
   return(fit)
 }
