@@ -36,6 +36,7 @@ fpen=list(2:5,10:20) means that the fusion penalty is
 A list containing the following components:
 \describe{
 \item{beta}{the fused LAD-lasso regression coefficient matrix.}
+\item{residuals}{the residuals.}
 \item{runtime}{the runtime of the function.}
 }
 }

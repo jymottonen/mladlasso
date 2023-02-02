@@ -4,10 +4,12 @@
 \alias{plot.cv}
 \title{plot.cv}
 \usage{
-\method{plot}{cv}(x, ...)
+\method{plot}{cv}(x, cv = 0, line = NA, ...)
 }
 \arguments{
 \item{x}{an object of class fusedladlasso.}
+
+\item{cv}{}
 
 \item{...}{further arguments passed to or from other methods.}
 }

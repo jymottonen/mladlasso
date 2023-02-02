@@ -4,7 +4,20 @@
 \alias{plot.fusedladlasso}
 \title{plot.fusedladlasso}
 \usage{
-\method{plot}{fusedladlasso}(x, ...)
+\method{plot}{fusedladlasso}(
+  x,
+  ynames = colnames(x$beta[-1, ]),
+  xlab = NA,
+  ylim = NA,
+  line = NA,
+  output = "monitor",
+  lambda1 = x$lambda1,
+  lambda2 = x$lambda2,
+  file = NA,
+  width = NA,
+  height = NA,
+  ...
+)
 }
 \arguments{
 \item{x}{an object of class fusedladlasso.}
