@@ -3,6 +3,7 @@
 S3method(plot,cv)
 S3method(plot,fusedladlasso)
 S3method(summary,fusedladlasso)
+export(functionalladlasso)
 export(fusedladlasso)
 export(fusedlasso)
 export(lambda1.cv)
