@@ -6,8 +6,10 @@
 #' of the ith individual.
 #' @param X an nxp matrix of p explaining variables, The ith row contains the values
 #' of p explaining variables for the ith individual.
-#' @param lambda1 the tuning parameter for the LAD-lasso penalty
-#' @param lambda2 the tuning parameter for the functional penalty
+#' @param initialB a (p+1)xq matrix of initial regression coefficients. If NULL, the initial values 
+#' are generated from standard normal distribution.
+#' @param lambda1 the tuning parameter for the LAD-lasso penalty.
+#' @param lambda2 the tuning parameter for the functional penalty.
 #' @param lpen gives the lasso penalized coefficients. For example, lpen=c(2,5:8)
 #' means that the coefficient vectors beta2, beta5,...,beta8 are penalized.
 #' @details 
@@ -41,7 +43,7 @@
 #' out$runtime
 #' }
 #' @export
-functionalladlasso<-function(Y, X, lambda1=0, lambda2=0, lpen=1:dim(X)[2])
+functionalladlasso<-function(Y, X, initialB=NULL, lambda1=0, lambda2=0, lpen=1:dim(X)[2])
 {
   if(is.data.frame(Y))Y<-as.matrix(Y)
   if(is.data.frame(X))X<-as.matrix(X)
@@ -120,18 +122,27 @@ functionalladlasso<-function(Y, X, lambda1=0, lambda2=0, lpen=1:dim(X)[2])
   }
   
   begt=Sys.time()
-  B0<-rnorm((p+1)*q)
-  beta0<-c(B0)
+  if(is.null(initialB)){
+    #B0<-rnorm((p+1)*q)
+    X1<-cbind(1,X)
+    B0<-MASS::ginv(t(X1)%*%X1)%*%t(X1)%*%Y
+    beta0<-c(B0)
+  }
+  else{
+    B0<-initialB
+    beta0<-c(B0)
+  }
+  
   res<-optim(beta0, fn, gr=NULL, method="BFGS",
-             control=list(maxit=10000,reltol=1e-10), Y=Y, X=X, lambda1=lambda1, lambda2=lambda2)
+             control=list(maxit=10000,reltol=1e-10,trace=1), Y=Y, X=X, lambda1=lambda1, lambda2=lambda2)
   beta<-matrix(res$par,p+1,q)
   value<-res$value
   convergence<-res$convergence
-  runt=as.numeric(Sys.time()-begt)
+  runt=Sys.time()-begt
   rownames(beta)<-c("Int",colnames(X))
   colnames(beta)<-colnames(Y)
   fit<-list(beta=beta,residuals=res,lambda1=lambda1,lambda2=lambda2,runtime=runt,convergence=convergence,value=value)
-  class(fit) <- "fusedladlasso"
+  class(fit) <- "functionalladlasso"
   return(fit)
 }
 
