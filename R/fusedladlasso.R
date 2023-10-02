@@ -124,7 +124,8 @@ fusedladlasso<-function(Y, X, lambda1=0, lambda2=0,
                eps = 1e-10, eps.S = 1e-10)
   beta<-as.matrix(coefficients(mod))
   res<-Y0-cbind(1,X0)%*%beta
-  runt=as.numeric(Sys.time()-begt)
+  #runt=as.numeric(Sys.time()-begt)
+  runt<-Sys.time()-begt
   rownames(beta)<-c("Int",colnames(x)[-1])
   colnames(beta)<-colnames(y)
   fit<-list(beta=beta,residuals=res,lambda1=lambda1,lambda2=lambda2,runtime=runt)
