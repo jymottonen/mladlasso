@@ -138,8 +138,7 @@ fusedlasso<-function(Y, X, lambda1=0, lambda2=0,
   begt=Sys.time()
   if(lambda1==0 & lambda2==0){
     X<-cbind(1,X)
-    require(MASS)
-    B<-ginv(t(X)%*%X)%*%t(X)%*%Y
+    B<-MASS::ginv(t(X)%*%X)%*%t(X)%*%Y
   }
   else{
     res<-optim(beta0, v, dv, method="BFGS",
@@ -149,7 +148,8 @@ fusedlasso<-function(Y, X, lambda1=0, lambda2=0,
     value<-res$value
     convergence<-res$convergence
   }
-  runt=as.numeric(Sys.time()-begt)
+  #runt=as.numeric(Sys.time()-begt)
+  runt<-Sys.time()-begt
 
   fit<-list(beta=B,runtime=runt)
   class(fit) <- "fusedladlasso"
