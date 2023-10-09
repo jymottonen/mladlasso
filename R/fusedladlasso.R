@@ -36,9 +36,13 @@
 #' \dontrun{
 #' data("simdat")
 #' Y<-simdat[,1:2]
-#' X<-simdat[,3:32]
-#' out<-fusedladlasso(Y,X,lambda1=0.2,lambda2=0)
-#' out$runtime
+#' X<-simdat[,3:50]
+#' out1<-fusedladlasso(Y,X,lambda1=0,lambda2=0)
+#' plot(out1)
+#' out2<-fusedladlasso(Y,X,lambda1=0.2,lambda2=0)
+#' plot(out2)
+#' out3<-fusedladlasso(Y,X,lambda1=0.2,lambda2=0.2)
+#' plot(out3)
 #' }
 #' @export
 fusedladlasso<-function(Y, X, lambda1=0, lambda2=0, 

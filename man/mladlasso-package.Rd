@@ -19,5 +19,10 @@ Useful links:
 \author{
 \strong{Maintainer}: Jyrki Mottonen \email{jyrki.mottonen@helsinki.fi} (\href{https://orcid.org/0000-0002-6270-2556}{ORCID})
 
+Authors:
+\itemize{
+  \item Tero Lähderanta \email{Tero.Lahderanta@oulu.fi} (\href{https://orcid.org/0000-0001-5856-2899}{ORCID})
+}
+
 }
 \keyword{internal}

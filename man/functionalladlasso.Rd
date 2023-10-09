@@ -4,7 +4,14 @@
 \alias{functionalladlasso}
 \title{Multivariate functional LAD-lasso}
 \usage{
-functionalladlasso(Y, X, lambda1 = 0, lambda2 = 0, lpen = 1:dim(X)[2])
+functionalladlasso(
+  Y,
+  X,
+  initialB = NULL,
+  lambda1 = 0,
+  lambda2 = 0,
+  lpen = 1:dim(X)[2]
+)
 }
 \arguments{
 \item{Y}{an nxq matrix of responses. The ith row contains the q-variate response
@@ -13,9 +20,12 @@ of the ith individual.}
 \item{X}{an nxp matrix of p explaining variables, The ith row contains the values
 of p explaining variables for the ith individual.}
 
-\item{lambda1}{the tuning parameter for the LAD-lasso penalty}
+\item{initialB}{a (p+1)xq matrix of initial regression coefficients. If NULL, the initial values
+are generated from standard normal distribution.}
 
-\item{lambda2}{the tuning parameter for the functional penalty}
+\item{lambda1}{the tuning parameter for the LAD-lasso penalty.}
+
+\item{lambda2}{the tuning parameter for the functional penalty.}
 
 \item{lpen}{gives the lasso penalized coefficients. For example, lpen=c(2,5:8)
 means that the coefficient vectors beta2, beta5,...,beta8 are penalized.}
