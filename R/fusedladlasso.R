@@ -36,13 +36,15 @@
 #' \dontrun{
 #' data("simdat")
 #' Y<-simdat[,1:2]
-#' X<-simdat[,3:50]
+#' X<-simdat[,3:52]
 #' out1<-fusedladlasso(Y,X,lambda1=0,lambda2=0)
 #' plot(out1)
 #' out2<-fusedladlasso(Y,X,lambda1=0.2,lambda2=0)
 #' plot(out2)
 #' out3<-fusedladlasso(Y,X,lambda1=0.2,lambda2=0.2)
 #' plot(out3)
+#' out <-lambda1.cv(Y,X,lambda1.min = 0.0001,lambda1.max = 0.1,len1=10,lambda2 = 0)
+#' out
 #' }
 #' @export
 fusedladlasso<-function(Y, X, lambda1=0, lambda2=0, 
@@ -125,7 +127,7 @@ fusedladlasso<-function(Y, X, lambda1=0, lambda2=0,
   
   begt=Sys.time()
   mod<-mv.l1lm(y~-1+x,score="s",stand="o",maxiter = 20000,
-               eps = 1e-10, eps.S = 1e-10)
+               eps = 1e-9, eps.S = 1e-9)
   beta<-as.matrix(coefficients(mod))
   res<-Y0-cbind(1,X0)%*%beta
   #runt=as.numeric(Sys.time()-begt)

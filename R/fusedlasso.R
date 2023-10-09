@@ -31,7 +31,7 @@
 #' \dontrun{
 #' data("simdat")
 #' Y<-simdat[,1:2]
-#' X<-simdat[,3:50]
+#' X<-simdat[,3:52]
 #' out1<-fusedlasso(Y,X,lambda1=0,lambda2=0)
 #' plot(out1)
 #' out2<-fusedlasso(Y,X,lambda1=0.2,lambda2=0)
