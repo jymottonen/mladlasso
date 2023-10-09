@@ -50,7 +50,7 @@
 #' \dontrun{
 #' data("simdat")
 #' Y<-simdat[,1:2]
-#' X<-simdat[,3:50]
+#' X<-simdat[,3:52]
 #' out <-lambda1.cv(Y,X,lambda1.min = 0.0001,lambda1.max = 0.1,len1=10,lambda2 = 0)
 #' plot(out)
 #' }
