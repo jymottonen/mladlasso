@@ -28,15 +28,15 @@ are generated from standard normal distribution.}
 \item{lambda2}{the tuning parameter for the functional penalty.}
 
 \item{lpen}{gives the lasso penalized coefficients. For example, lpen=c(2,5:8)
-means that the coefficient vectors beta2, beta5,...,beta8 are penalized.}
+means that the coefficient vectors \eqn{\beta_2, \beta_5,...,\beta_8} are penalized.}
 }
 \value{
 A list containing the following components:
 \describe{
 \item{beta}{the functional LAD regression coefficient matrix.}
 \item{residuals}{the residuals.}
-\item{lambda1}{the tuning parameter for the LAD-lasso penalty}
-\item{lambda2}{the tuning parameter for the functional penalty}
+\item{lambda1}{the tuning parameter  \eqn{\lambda_1} for the LAD-lasso penalty}
+\item{lambda2}{the tuning parameter  \eqn{\lambda_2} for the functional penalty}
 \item{runtime}{the runtime of the function.}
 \item{convergence}{convergence of the optimization routine. 0 indicates successful completion.}
 \item{value}{the minimized value of the objective function}

@@ -22,6 +22,26 @@
 \arguments{
 \item{x}{an object of class fusedladlasso.}
 
+\item{ynames}{ynames}
+
+\item{xlab}{xlab}
+
+\item{ylim}{ylim}
+
+\item{line}{line}
+
+\item{output}{output}
+
+\item{lambda1}{lambda1}
+
+\item{lambda2}{lambda2}
+
+\item{file}{file}
+
+\item{width}{width}
+
+\item{height}{height}
+
 \item{...}{further arguments passed to or from other methods.}
 }
 \description{

@@ -5,7 +5,7 @@
 #' @format This data frame contains the following columns:
 #' \describe{
 #'   \item{y1}{outcome variable 1}
-#'   \item{y1}{outcome variable 2}
+#'   \item{y2}{outcome variable 2}
 #'   \item{x1}{explaining variable 1}
 #'   \item{x2}{explaining variable 2}
 #'   \item{x3}{explaining variable 3}
