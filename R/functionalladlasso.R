@@ -11,15 +11,15 @@
 #' @param lambda1 the tuning parameter for the LAD-lasso penalty.
 #' @param lambda2 the tuning parameter for the functional penalty.
 #' @param lpen gives the lasso penalized coefficients. For example, lpen=c(2,5:8)
-#' means that the coefficient vectors beta2, beta5,...,beta8 are penalized.
+#' means that the coefficient vectors \eqn{\beta_2, \beta_5,...,\beta_8} are penalized.
 #' @details 
 #' Here are the details of the function...
 #' @return A list containing the following components:
 #' \describe{
 #' \item{beta}{the functional LAD regression coefficient matrix.}
 #' \item{residuals}{the residuals.}
-#' \item{lambda1}{the tuning parameter for the LAD-lasso penalty}
-#' \item{lambda2}{the tuning parameter for the functional penalty}
+#' \item{lambda1}{the tuning parameter  \eqn{\lambda_1} for the LAD-lasso penalty}
+#' \item{lambda2}{the tuning parameter  \eqn{\lambda_2} for the functional penalty}
 #' \item{runtime}{the runtime of the function.}
 #' \item{convergence}{convergence of the optimization routine. 0 indicates successful completion.}
 #' \item{value}{the minimized value of the objective function}
@@ -42,6 +42,9 @@
 #' out<-functional.lad(Y,X,lambda1=0.2,lambda2=0.3)
 #' out$runtime
 #' }
+#' @importFrom stats optim rnorm
+#' @importFrom MASS ginv
+#' @import SpatialNP
 #' @export
 functionalladlasso<-function(Y, X, initialB=NULL, lambda1=0, lambda2=0, lpen=1:dim(X)[2])
 {
@@ -116,7 +119,7 @@ functionalladlasso<-function(Y, X, initialB=NULL, lambda1=0, lambda2=0, lpen=1:d
   dfn<-function(beta,Y,X){
     B<-matrix(beta,q,p)
     E<-Y-X%*%B
-    norm.E<-SpatialNP:::norm(E)
+    norm.E<-norm(E)
     E.sign<-sweep(E,1,norm.E, "/")
     -(1/n)*c(t(X)%*%E.sign)
   }
@@ -125,7 +128,7 @@ functionalladlasso<-function(Y, X, initialB=NULL, lambda1=0, lambda2=0, lpen=1:d
   if(is.null(initialB)){
     #B0<-rnorm((p+1)*q)
     X1<-cbind(1,X)
-    B0<-MASS::ginv(t(X1)%*%X1)%*%t(X1)%*%Y
+    B0<-ginv(t(X1)%*%X1)%*%t(X1)%*%Y
     beta0<-c(B0)
   }
   else{

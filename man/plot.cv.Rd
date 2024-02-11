@@ -9,7 +9,9 @@
 \arguments{
 \item{x}{an object of class fusedladlasso.}
 
-\item{cv}{}
+\item{cv}{cv}
+
+\item{line}{line}
 
 \item{...}{further arguments passed to or from other methods.}
 }

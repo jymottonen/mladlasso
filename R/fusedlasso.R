@@ -9,11 +9,10 @@
 #' @param lambda1 the tuning parameter for the lasso penalty
 #' @param lambda2 the tuning parameter for the fusion penalty
 #' @param lpen gives the lasso penalized coefficients. For example, lpen=c(2,5:8)
-#' means that the coefficient vectors beta2, beta5,...,beta8 are penalized.
+#' means that the coefficient vectors \eqn{\beta_2, \beta_5,...,\beta_8} are penalized.
 #' @param fpen a list of blocks of fusion penalized coefficients. For example, 
 #' fpen=list(2:5,10:20) means that the fusion penalty is 
-#' \code{lambda2*[||beta_3-beta_2||+...+||beta_5-beta_4||+
-#' ||beta_{11}-beta_{10}||+...+||beta_{20}-beta_{19}||]}
+#' \eqn{\lambda_2[||\beta_3-\beta_2||+...+||\beta_5-\beta_4||+||\beta_{11}-\beta_{10}||+...+||\beta_{20}-\beta_{19}||}
 #' @details 
 #' Here are the details of the function...
 #' @return A list containing the following components:
@@ -39,6 +38,8 @@
 #' out3<-fusedlasso(Y,X,lambda1=0.2,lambda2=0.2)
 #' plot(out3)
 #' }
+#' @importFrom stats optim rnorm
+#' @importFrom MASS ginv
 #' @export
 fusedlasso<-function(Y, X, lambda1=0, lambda2=0, 
                         lpen=1:dim(X)[2], fpen=list(1:dim(X)[2]))
@@ -142,7 +143,7 @@ fusedlasso<-function(Y, X, lambda1=0, lambda2=0,
   begt=Sys.time()
   if(lambda1==0 & lambda2==0){
     X<-cbind(1,X)
-    B<-MASS::ginv(t(X)%*%X)%*%t(X)%*%Y
+    B<-ginv(t(X)%*%X)%*%t(X)%*%Y
   }
   else{
     res<-optim(beta0, v, dv, method="BFGS",

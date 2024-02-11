@@ -4,12 +4,21 @@
 #' the  multivariate fused LAD-lasso regression fit.
 #'
 #' @param x an object of class fusedladlasso.
-#' @param ynames
-#' @param line
-#' @param ylim
+#' @param ynames ynames
+#' @param xlab xlab
+#' @param ylim ylim
+#' @param line line
+#' @param output output
+#' @param lambda1 lambda1
+#' @param lambda2 lambda2
+#' @param file file
+#' @param width width
+#' @param height height
 #' @param ... further arguments passed to or from other methods.
 #' @details 
 #' Here are the details of the function...
+#' @importFrom grDevices dev.off pdf
+#' @importFrom graphics abline axis lines points title
 #' @export
 plot.fusedladlasso<-function(x, ynames=colnames(x$beta[-1,]), xlab=NA, ylim=NA, line=NA, 
                              output="monitor", lambda1=x$lambda1, lambda2=x$lambda2, 
@@ -52,8 +61,8 @@ plot.fusedladlasso<-function(x, ynames=colnames(x$beta[-1,]), xlab=NA, ylim=NA, 
 #' the cross-validation
 #'
 #' @param x an object of class fusedladlasso.
-#' @param cv 
-#' @param line
+#' @param cv cv
+#' @param line line
 #' @param ... further arguments passed to or from other methods.
 #' @details 
 #' Here are the details of the function...

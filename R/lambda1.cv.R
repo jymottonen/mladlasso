@@ -1,40 +1,39 @@
-#' Cross-validation of lambda1
+#' Selection of \eqn{\lambda_1} using cross-validation
 #'
-#' lambda1.cv is used to find the tuning parameter of the lasso penalty lambda1 by using 5-fold 
-#' cross-validation. The tuning parameter of the fusion penalty lambda2 is fixed.
+#' lambda1.cv is used to find the tuning parameter  \eqn{\lambda_1} of the lasso penalty by using 5-fold 
+#' cross-validation. The tuning parameter \eqn{\lambda_2} of the fusion penalty  is fixed.
 #'
 #' @param Y an nxq matrix.
 #' @param X an nxp matrix.
-#' @param lambda1.min the minimum value of the grid of lambda1's.
-#' @param lambda1.max the maximum value of the grid of lambda1's.
-#' @param len1 the number of values in the grid of lambda1's
-#' @param lambda2 the (fixed) value of the tuning parameter lambda2. 
+#' @param lambda1.min the minimum value of the grid of \eqn{\lambda_1}'s.
+#' @param lambda1.max the maximum value of the grid of \eqn{\lambda_1}'s.
+#' @param len1 the number of values in the grid of \eqn{\lambda_1}'s
+#' @param lambda2 the (fixed) value of the tuning parameter \eqn{\lambda_2}. 
 #' @param lpen gives the lasso penalized coefficients. For example, lpen=c(2,5:8)
-#' means that the coefficient vectors beta2, beta5,...,beta8 are penalized.
+#' means that the coefficient vectors  \eqn{\beta_2, \beta_5,...,\beta_8} are penalized.
 #' @param fpen a list of blocks of fusion penalized coefficients. For example, 
 #' fpen=list(2:5,10:20) means that the fusion penalty is 
-#' \code{lambda2*[||beta_3-beta_2||+...+||beta_5-beta_4||+
-#' ||beta_{11}-beta_{10}||+...+||beta_{20}-beta_{19}||]}
+#' \eqn{\lambda_2[||\beta_3-\beta_2||+...+||\beta_5-\beta_4||+||\beta_{11}-\beta_{10}||+...+||\beta_{20}-\beta_{19}||}
 #' @details 
 #' Here are the details of the function...
 #' @return A list with the following components
 #' \describe{
-#' \item{lambda1}{the grid of lambda1's. The length lambda1 is len1}
-#' \item{lambda2}{the tuning parameter lambda2.}
+#' \item{lambda1}{the grid of \eqn{\lambda_1}'s. The length of lambda1 is len1}
+#' \item{lambda2}{the tuning parameter \eqn{\lambda_2}.}
 #' \item{cv}{list of values of CV precision measures in the grid points.
 #' The first component vector gives the mean absolute errors (MAE) and the  
 #' second component vector gives the mean squared errors (MSE).}
-#' \item{lbdmin}{vector of values of lambda1 that minimize 
+#' \item{lbdmin}{vector of values of \eqn{\lambda_1} that minimize 
 #' the precision measures. The ith component 
-#' gives the value of lambda1 that minimizes the ith 
+#' gives the value of \eqn{\lambda_1} that minimizes the ith 
 #' precision measure.}
-#' \item{tpoint}{vector of types of values of lambda1 that minimize 
-#' the precision measures: tpoint\[i\]=1, if the value of lambda1 that
+#' \item{tpoint}{vector of types of values of \eqn{\lambda_1} that minimize 
+#' the precision measures: tpoint\[i\]=1, if the value of \eqn{\lambda_1} that
 #' minimizes the ith precision measure is lambda1.min, 
-#' tpoint\[i\]=2, if the value of lambda1 that minimizes the ith 
+#' tpoint\[i\]=2, if the value of \eqn{\lambda_1} that minimizes the ith 
 #' precision measure is a turning point,  tpoint\[i\]=3, if the value 
-#' of lambda1 that minimizes the ith precision measure is lambda1.max.}
-#' \item{h}{the number non-zero coefficient vectors.}
+#' of \eqn{\lambda_1} that minimizes the ith precision measure is lambda1.max.}
+#' \item{h}{the number of non-zero coefficient vectors.}
 #' }
 #' @references 
 #' Oja, H. (2010), \emph{Multivariate Nonparametric Methods with R. 
@@ -86,8 +85,8 @@ lambda1.cv<-function(Y,X,lambda1.min=0,lambda1.max=5,len1=10,lambda2=0,
   h<-rep(0,len1)
   mae<-rep(0,5)
   mse<-rep(0,5)
-
-  groups<-rep(1:5,times=m)  
+  
+  groups<-rep(1:5,times=m)
   for(i1 in 1:len1)
   {
     for(j in 1:5)
