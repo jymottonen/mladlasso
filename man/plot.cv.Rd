@@ -4,20 +4,20 @@
 \alias{plot.cv}
 \title{plot.cv}
 \usage{
-\method{plot}{cv}(x, cv = 0, line = NA, ...)
+\method{plot}{cv}(x, cv = "MAE", line = NA, ...)
 }
 \arguments{
-\item{x}{an object of class fusedladlasso.}
+\item{x}{an object of class cv.}
 
-\item{cv}{cv}
+\item{cv}{the type of the plot. The choice \code{cv}="MAE" gives the cross-validation mean absolute errors (MAE)
+and \code{cv}="MSE" gives the cross-validation mean squared errors (MSE).  The default is \code{cv}="MAE".}
 
-\item{line}{line}
+\item{line}{specifying a value for \code{line} overrides the default placement of title, and places it this many lines outwards from the plot edge.}
 
 \item{...}{further arguments passed to or from other methods.}
 }
 \description{
-plot.cv is used to plot the results of
-the cross-validation
+Plot method for objects of class "cv".
 }
 \details{
 Here are the details of the function...

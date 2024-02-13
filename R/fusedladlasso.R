@@ -7,8 +7,8 @@
 #' @param X an nxp matrix of p explaining variables, The ith row contains the values
 #' of p explaining variables for the ith individual.
 #' @param initialB initial value of the coefficient matrix
-#' @param lambda1 the tuning parameter \eqn{\lambda_1} for the LAD-penalty
-#' @param lambda2 the tuning parameter \eqn{\lambda_2} for the fusion-penalty
+#' @param lambda1 the tuning parameter \eqn{\lambda_1} for the lasso penalty
+#' @param lambda2 the tuning parameter \eqn{\lambda_2} for the fusion penalty
 #' @param lpen gives the lasso penalized coefficients. For example, lpen=c(2,5:8)
 #' means that the coefficient vectors \eqn{\beta_2, \beta_5,...,\beta_8} are penalized.
 #' @param fpen a list of blocks of fusion penalized coefficients. For example, 

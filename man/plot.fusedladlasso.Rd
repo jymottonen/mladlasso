@@ -6,47 +6,43 @@
 \usage{
 \method{plot}{fusedladlasso}(
   x,
-  ynames = colnames(x$beta[-1, ]),
-  xlab = NA,
-  ylim = NA,
+  xlab = "Explaining variable",
+  ylim = c(min(x$beta[-1, ]), max(x$beta[-1, ])),
   line = NA,
-  output = "monitor",
+  output = "screen",
   lambda1 = x$lambda1,
   lambda2 = x$lambda2,
-  file = NA,
-  width = NA,
-  height = NA,
+  file = "Rplots.pdf",
+  width = 7,
+  height = 7,
   ...
 )
 }
 \arguments{
 \item{x}{an object of class fusedladlasso.}
 
-\item{ynames}{ynames}
+\item{xlab}{a title for the x axis. The default is "Explaining variable".}
 
-\item{xlab}{xlab}
+\item{ylim}{a numeric vector of length 2, giving the y coordinate range.}
 
-\item{ylim}{ylim}
+\item{line}{specifying a value for \code{line} overrides the default placement of title, and places it this many lines outwards from the plot edge.}
 
-\item{line}{line}
+\item{output}{the plot is exported to a PDF file \code{file} if \code{output}="PDF". Defaults \code{output}="screen".}
 
-\item{output}{output}
+\item{lambda1}{the tuning parameter \eqn{\lambda_1} for the lasso penalty.}
 
-\item{lambda1}{lambda1}
+\item{lambda2}{the tuning parameter \eqn{\lambda_2} for the fusion penalty.}
 
-\item{lambda2}{lambda2}
+\item{file}{the name of the pdf file. The default is "Rplots.pdf".}
 
-\item{file}{file}
+\item{width}{the width of the graphics region of the pdf file in inches. The default value is 7.}
 
-\item{width}{width}
-
-\item{height}{height}
+\item{height}{the height of the graphics region of the pdf file in inches. The default value is 7.}
 
 \item{...}{further arguments passed to or from other methods.}
 }
 \description{
-plot.fusedladlasso is used to plot the results of
-the  multivariate fused LAD-lasso regression fit.
+Plot method for objects of class "fusedladlasso".
 }
 \details{
 Here are the details of the function...
