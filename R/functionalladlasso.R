@@ -8,8 +8,8 @@
 #' of p explaining variables for the ith individual.
 #' @param initialB a (p+1)xq matrix of initial regression coefficients. If NULL, the initial values 
 #' are generated from standard normal distribution.
-#' @param lambda1 the tuning parameter for the LAD-lasso penalty.
-#' @param lambda2 the tuning parameter for the functional penalty.
+#' @param lambda1 the tuning parameter \eqn{\lambda_1} for the lasso penalty.
+#' @param lambda2 the tuning parameter\eqn{\lambda_2} for the functional penalty.
 #' @param lpen gives the lasso penalized coefficients. For example, lpen=c(2,5:8)
 #' means that the coefficient vectors \eqn{\beta_2, \beta_5,...,\beta_8} are penalized.
 #' @details 

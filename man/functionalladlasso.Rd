@@ -23,7 +23,7 @@ of p explaining variables for the ith individual.}
 \item{initialB}{a (p+1)xq matrix of initial regression coefficients. If NULL, the initial values
 are generated from standard normal distribution.}
 
-\item{lambda1}{the tuning parameter for the LAD-lasso penalty.}
+\item{lambda1}{the tuning parameter for the lasso penalty.}
 
 \item{lambda2}{the tuning parameter for the functional penalty.}
 

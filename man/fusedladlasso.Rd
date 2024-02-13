@@ -23,9 +23,9 @@ of p explaining variables for the ith individual.}
 
 \item{initialB}{initial value of the coefficient matrix}
 
-\item{lambda1}{the tuning parameter \eqn{\lambda_1} for the LAD-penalty}
+\item{lambda1}{the tuning parameter \eqn{\lambda_1} for the lasso penalty}
 
-\item{lambda2}{the tuning parameter \eqn{\lambda_2} for the fusion-penalty}
+\item{lambda2}{the tuning parameter \eqn{\lambda_2} for the fusion penalty}
 
 \item{lpen}{gives the lasso penalized coefficients. For example, lpen=c(2,5:8)
 means that the coefficient vectors \eqn{\beta_2, \beta_5,...,\beta_8} are penalized.}
