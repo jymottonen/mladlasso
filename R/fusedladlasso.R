@@ -128,16 +128,16 @@ fusedladlasso<-function(Y, X, initialB=NULL, lambda1=0, lambda2=0,
   else
     stop("lambda1 and lambda2 should be non-negative numbers")
   
-  begt=Sys.time()
+  begt=proc.time()[[3]]
   #mod<-mv.l1lm(y~-1+x, score="s",stand="o",maxiter = 20000,eps = 1e-6, eps.S = 1e-6)
   #beta<-as.matrix(coefficients(mod))
   mod<-l1.fit(y,x,initialB,maxiter = 20000,eps = 1e-6, eps.S = 1e-6)
   beta<-as.matrix(mod$coefficients)
-  res<-Y0-cbind(1,X0)%*%beta
-  runt<-Sys.time()-begt
+  resid<-Y0-cbind(1,X0)%*%beta
+  runt<-proc.time()[[3]]-begt
   rownames(beta)<-c("Int",colnames(x)[-1])
   colnames(beta)<-colnames(y)
-  fit<-list(beta=beta,residuals=res,lambda1=lambda1,lambda2=lambda2,iter=mod$iter,runtime=runt)
+  fit<-list(beta=beta,residuals=resid,lambda1=lambda1,lambda2=lambda2,iter=mod$iter,runtime=runt)
   class(fit) <- "fusedladlasso"
   return(fit)
 }

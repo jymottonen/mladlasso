@@ -18,6 +18,8 @@
 #' @return A list containing the following components:
 #' \describe{
 #' \item{beta}{the fused lasso regression coefficient matrix.}
+#' \item{residuals}{the residuals.}
+#' \item{convergence}{convergence of the optimization routine. 0 indicates successful completion.}
 #' \item{runtime}{the runtime of the function.}
 #' }
 #' @references 
@@ -58,6 +60,8 @@ fusedlasso<-function(Y, X, lambda1=0, lambda2=0,
     stop(paste("the blocks should contain only integers from 1 to ",dim(X)[2],sep=""))
   warn.init<-options()$warn
   options(warn=-1)
+  X0<-X
+  Y0<-Y
   q<-ncol(Y)     #The number of traits
   p<-ncol(X)     #The number of explaining variables
   n<-nrow(Y)     #The number of cases   
@@ -140,7 +144,7 @@ fusedlasso<-function(Y, X, lambda1=0, lambda2=0,
   }
   
   beta0<-rnorm((p+1)*q)
-  begt=Sys.time()
+  begt=proc.time()[[3]]
   if(lambda1==0 & lambda2==0){
     X<-cbind(1,X)
     B<-ginv(t(X)%*%X)%*%t(X)%*%Y
@@ -153,10 +157,9 @@ fusedlasso<-function(Y, X, lambda1=0, lambda2=0,
     value<-res$value
     convergence<-res$convergence
   }
-  #runt=as.numeric(Sys.time()-begt)
-  runt<-Sys.time()-begt
-
-  fit<-list(beta=B,runtime=runt)
+  runt<-proc.time()[[3]]-begt
+  resid<-Y0-cbind(1,X0)%*%B
+  fit<-list(beta=B,residuals=resid,convergence=convergence,runtime=runt)
   class(fit) <- "fusedladlasso"
   return(fit)
 }

@@ -124,7 +124,7 @@ functionalladlasso<-function(Y, X, initialB=NULL, lambda1=0, lambda2=0, lpen=1:d
     -(1/n)*c(t(X)%*%E.sign)
   }
   
-  begt=Sys.time()
+  begt=proc.time()[[3]]
   if(is.null(initialB)){
     #B0<-rnorm((p+1)*q)
     X1<-cbind(1,X)
@@ -139,12 +139,13 @@ functionalladlasso<-function(Y, X, initialB=NULL, lambda1=0, lambda2=0, lpen=1:d
   res<-optim(beta0, fn, gr=NULL, method="BFGS",
              control=list(maxit=10000,reltol=1e-10,trace=1), Y=Y, X=X, lambda1=lambda1, lambda2=lambda2)
   beta<-matrix(res$par,p+1,q)
+  resid<-Y-cbind(1,X)%*%beta
   value<-res$value
   convergence<-res$convergence
-  runt=Sys.time()-begt
+  runt=proc.time()[[3]]-begt
   rownames(beta)<-c("Int",colnames(X))
   colnames(beta)<-colnames(Y)
-  fit<-list(beta=beta,residuals=res,lambda1=lambda1,lambda2=lambda2,runtime=runt,convergence=convergence,value=value)
+  fit<-list(beta=beta,residuals=resid,lambda1=lambda1,lambda2=lambda2,runtime=runt,convergence=convergence,value=value)
   class(fit) <- "functionalladlasso"
   return(fit)
 }

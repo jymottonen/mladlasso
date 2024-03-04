@@ -4,15 +4,13 @@
 \alias{plot.cv}
 \title{plot.cv}
 \usage{
-\method{plot}{cv}(x, cv = "MAE", line = NA, ...)
+\method{plot}{cv}(x, cv = "MAE", ...)
 }
 \arguments{
 \item{x}{an object of class cv.}
 
 \item{cv}{the type of the plot. The choice \code{cv}="MAE" gives the cross-validation mean absolute errors (MAE)
 and \code{cv}="MSE" gives the cross-validation mean squared errors (MSE).  The default is \code{cv}="MAE".}
-
-\item{line}{specifying a value for \code{line} overrides the default placement of title, and places it this many lines outwards from the plot edge.}
 
 \item{...}{further arguments passed to or from other methods.}
 }
