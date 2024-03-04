@@ -8,7 +8,6 @@
   x,
   xlab = "Explaining variable",
   ylim = c(min(x$beta[-1, ]), max(x$beta[-1, ])),
-  line = NA,
   output = "screen",
   lambda1 = x$lambda1,
   lambda2 = x$lambda2,
@@ -24,8 +23,6 @@
 \item{xlab}{a title for the x axis. The default is "Explaining variable".}
 
 \item{ylim}{a numeric vector of length 2, giving the y coordinate range.}
-
-\item{line}{specifying a value for \code{line} overrides the default placement of title, and places it this many lines outwards from the plot edge.}
 
 \item{output}{the plot is exported to a PDF file \code{file} if \code{output}="PDF". Defaults \code{output}="screen".}
 
