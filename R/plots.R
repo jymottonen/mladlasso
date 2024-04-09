@@ -74,6 +74,26 @@ plot.cv<-function(x, cv="MAE", ...)
     stop("cv should be MAE or MSE")
 }
 
+#' plot.bic
+#'
+#' Plot method for objects of class "bic". 
+#'
+#' @param x an object of class bic.
+#' @param ... further arguments passed to or from other methods.
+#' @details 
+#' Here are the details of the function...
+#' @export
+plot.bic<-function(x, ...)
+{
+  lambda1<-x$lambda1
+  lambda2<-x$lambda2
+  bic<-x$bic
+  lbd<-x$lbdmin
+  main.txt = substitute(paste("BIC: ", lambda[2], "=", lambda2, sep=""))
+  plot(lambda1,bic,main=main.txt,type="l",xlab=expression(lambda[1]),ylab="")
+  title(ylab="BIC")
+  abline(v=lbd,lty=2)
+}
 
 
 
