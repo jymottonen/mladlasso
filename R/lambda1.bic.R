@@ -9,6 +9,7 @@
 #' @param lambda1.max the maximum value of the grid of \eqn{\lambda_1}'s.
 #' @param len1 the number of values in the grid of \eqn{\lambda_1}'s
 #' @param lambda2 the (fixed) value of the tuning parameter \eqn{\lambda_2}. 
+#' @param scale the scale parameter of BIC.
 #' @param lpen gives the lasso penalized coefficients. For example, lpen=c(2,5:8)
 #' means that the coefficient vectors \eqn{\beta_2, \beta_5,...,\beta_8} are penalized.
 #' @param fpen a list of blocks of fusion penalized coefficients. For example, 
@@ -49,7 +50,7 @@
 #' plot(out)
 #' }
 #' @export
-lambda1.bic<-function(Y,X,lambda1.min=0,lambda1.max=5,len1=10,lambda2=0,
+lambda1.bic<-function(Y,X,lambda1.min=0,lambda1.max=5,len1=10,lambda2=0,scale=10,
                      lpen=1:dim(X)[2],fpen=list(1:dim(X)[2]))
 {
   if(is.data.frame(Y))Y<-as.matrix(Y)
@@ -80,7 +81,9 @@ lambda1.bic<-function(Y,X,lambda1.min=0,lambda1.max=5,len1=10,lambda2=0,
     value[i1]<-mean(sqrt(diag(E%*%t(E))))
     norms<-sqrt(diag(beta%*%t(beta)))
     h[i1]<-sum(norms>1e-6)-1
-    bic[i1]<-value[i1]/10+h[i1]*log(n)/n
+    bic[i1]<-value[i1]/scale+h[i1]*log(n)/n
+    print(paste("i1=",i1,"lambda1=",lbd1[i1],"lambda2=",lambda2,
+                "bic=",bic[i1],"h=",h[i1]))
   }
   ind.min<-which.min(bic)
   lbdmin<-lbd1[ind.min]
