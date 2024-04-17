@@ -73,10 +73,16 @@ lambda1.bic<-function(Y,X,lambda1.min=0,lambda1.max=5,len1=10,lambda2=0,scale=10
   h<-rep(0,len1)
   value<-rep(0,len1)
   
-  mod0<-fusedladlasso(Y,X,lambda1=0.01,lambda2=0,lpen=lpen,fpen=fpen)
+  if(n>p)
+    mod0<-fusedladlasso(Y,X,lambda1=0,lambda2=0,lpen=lpen,fpen=fpen)
+  else
+    mod0<-fusedladlasso(Y,X,lambda1=0.001,lambda2=0,lpen=lpen,fpen=fpen)
   beta0<-mod0$beta
   E<-Y-cbind(1,X)%*%beta0
-  scale<-mean(diag(E%*%t(E)))/q
+  const2<-sqrt(n/(2*(n-p-1)))*gamma(q/2)/gamma((q+1)/2)
+  #scale<-mean(diag(E%*%t(E)))/q
+  sigmahat<-const2*mean(sqrt(diag(E%*%t(E))))
+  scale<-sigmahat^2
   for(i1 in 1:len1)
   {
     mod1<-fusedladlasso(Y,X,lambda1=lbd1[i1],lambda2=lambda2,lpen=lpen,fpen=fpen)
