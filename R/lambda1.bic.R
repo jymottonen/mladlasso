@@ -79,19 +79,16 @@ lambda1.bic<-function(Y,X,lambda1.min=0,lambda1.max=5,len1=10,lambda2=0,scale=10
     mod0<-fusedladlasso(Y,X,lambda1=0.001,lambda2=0,lpen=lpen,fpen=fpen)
   beta0<-mod0$beta
   E<-Y-cbind(1,X)%*%beta0
-  const2<-sqrt(n/(2*(n-p-1)))*gamma(q/2)/gamma((q+1)/2)
-  #scale<-mean(diag(E%*%t(E)))/q
-  sigmahat<-const2*mean(sqrt(diag(E%*%t(E))))
-  scale<-sigmahat^2
+  const<-sqrt(n/(2*(n-p-1)))*gamma(q/2)/gamma((q+1)/2)
+  sigmahat<-const*mean(sqrt(diag(E%*%t(E))))
   for(i1 in 1:len1)
   {
     mod1<-fusedladlasso(Y,X,lambda1=lbd1[i1],lambda2=lambda2,lpen=lpen,fpen=fpen)
     beta<-mod1$beta
     E<-Y-cbind(1,X)%*%beta
     value[i1]<-mean(sqrt(diag(E%*%t(E))))
-    #norms<-sqrt(diag(beta%*%t(beta)))
     h[i1]<-sum(abs(beta[-1,])>1.0e-8)
-    bic[i1]<-value[i1]/scale+h[i1]*log(n)/n
+    bic[i1]<-value[i1]/sigmahat+h[i1]*log(n)/n
     print(paste("i1=",i1,"lambda1=",lbd1[i1],"lambda2=",lambda2,
                 "bic=",bic[i1],"h=",h[i1]))
   }
@@ -102,7 +99,7 @@ lambda1.bic<-function(Y,X,lambda1.min=0,lambda1.max=5,len1=10,lambda2=0,scale=10
   else tpoint<-2
   options(warn=warn.init)
   out<-list(lambda1=lbd1,lambda2=lambda2,bic=bic,
-            lbdmin=lbdmin,scale=scale,
+            lbdmin=lbdmin,scale=sigmahat,
             tpoint=tpoint,h=h)
   class(out) <- "bic"
   return(out)
