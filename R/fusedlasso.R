@@ -71,7 +71,7 @@ fusedlasso<-function(Y, X, lambda1=0, lambda2=0,
   gam[lpen]<-1
   gam<-c(0,gam)
   D1<-diag(gam)
-  
+
   fused.id<-NULL
   for(i in 1:nblocks)
   {
@@ -148,6 +148,7 @@ fusedlasso<-function(Y, X, lambda1=0, lambda2=0,
   if(lambda1==0 & lambda2==0){
     X<-cbind(1,X)
     B<-ginv(t(X)%*%X)%*%t(X)%*%Y
+    convergence<-NA
   }
   else{
     res<-optim(beta0, v, dv, method="BFGS",
@@ -157,13 +158,15 @@ fusedlasso<-function(Y, X, lambda1=0, lambda2=0,
     value<-res$value
     convergence<-res$convergence
   }
+  
+  resid<-Y0-cbind(1,X0)%*%B
+  
   runt<-proc.time()[[3]]-begt
   resid<-Y0-cbind(1,X0)%*%B
   fit<-list(beta=B,residuals=resid,convergence=convergence,runtime=runt)
   class(fit) <- "fusedladlasso"
   return(fit)
 }
-
 
 
 

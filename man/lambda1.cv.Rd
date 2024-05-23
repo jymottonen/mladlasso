@@ -7,6 +7,7 @@
 lambda1.cv(
   Y,
   X,
+  lad = TRUE,
   lambda1.min = 0,
   lambda1.max = 5,
   len1 = 10,
@@ -19,6 +20,8 @@ lambda1.cv(
 \item{Y}{an nxq matrix.}
 
 \item{X}{an nxp matrix.}
+
+\item{lad}{logical. If lad=TRUE, fused LAD-lasso is used, otherwise fused lasso is used.}
 
 \item{lambda1.min}{the minimum value of the grid of \eqn{\lambda_1}'s.}
 

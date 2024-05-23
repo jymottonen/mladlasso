@@ -5,6 +5,7 @@
 #'
 #' @param Y an nxq matrix.
 #' @param X an nxp matrix.
+#' @param lad logical. If lad=TRUE, fused LAD-lasso is used, otherwise fused lasso is used.
 #' @param lambda1.min the minimum value of the grid of \eqn{\lambda_1}'s.
 #' @param lambda1.max the maximum value of the grid of \eqn{\lambda_1}'s.
 #' @param len1 the number of values in the grid of \eqn{\lambda_1}'s
@@ -53,8 +54,9 @@
 #' out <-lambda1.cv(Y,X,lambda1.min = 0.0001,lambda1.max = 0.1,len1=10,lambda2 = 0)
 #' plot(out)
 #' }
+#' @importFrom stats median
 #' @export
-lambda1.cv<-function(Y,X,lambda1.min=0,lambda1.max=5,len1=10,lambda2=0,
+lambda1.cv<-function(Y,X,lad=TRUE,lambda1.min=0,lambda1.max=5,len1=10,lambda2=0,
                      lpen=1:dim(X)[2],fpen=list(1:dim(X)[2]))
 {
   #
@@ -91,22 +93,35 @@ lambda1.cv<-function(Y,X,lambda1.min=0,lambda1.max=5,len1=10,lambda2=0,
   {
     for(j in 1:5)
     {   
-      mod1<-fusedladlasso(Y[groups!=j,],X[groups!=j,],
-                          lambda1=lbd1[i1],lambda2=lambda2,lpen=lpen,fpen=fpen)
+      if(lad)
+      {
+        mod1<-fusedladlasso(Y[groups!=j,],X[groups!=j,],
+                            lambda1=lbd1[i1],lambda2=lambda2,lpen=lpen,fpen=fpen)
+      }
+      else
+      {
+        mod1<-fusedlasso(Y[groups!=j,],X[groups!=j,],
+                        lambda1=lbd1[i1],lambda2=lambda2,lpen=lpen,fpen=fpen)
+      }
       beta<-mod1$beta
       E<-Y[groups==j,]-cbind(1,X[groups==j,])%*%beta
       mae[j]<-mean(sqrt(diag(E%*%t(E))))
+      #mae[j]<-median(sqrt(diag(E%*%t(E))))
       mse[j]<-mean(diag(E%*%t(E)))
     }
     cv.mae[i1]<-mean(mae)
+    #cv.mae[i1]<-median(mae)
     cv.mse[i1]<-mean(mse)
-    mod1<-fusedladlasso(Y,X,lambda1=lbd1[i1],lambda2=lambda2,lpen=lpen,fpen=fpen)
+    if(lad)
+    {
+      mod1<-fusedladlasso(Y,X,lambda1=lbd1[i1],lambda2=lambda2,lpen=lpen,fpen=fpen)
+    }
+    else
+    {
+      mod1<-fusedlasso(Y,X,lambda1=lbd1[i1],lambda2=lambda2,lpen=lpen,fpen=fpen)
+    }
     beta<-mod1$beta  
-    norms<-sqrt(diag(beta%*%t(beta)))
-    h[i1]<-sum(norms>1e-6)-1
-    print(paste("i1=",i1,"lambda1=",lbd1[i1],"lambda2=",lambda2,
-                "cv.mae=",cv.mae[i1],"cv.mse=",cv.mse[i1],
-                "h=",h[i1]))
+    h[i1]<-sum(abs(beta[-1,])>1.0e-8)
   }
   ind.min.mae<-which.min(cv.mae)
   ind.min.mse<-which.min(cv.mse)
