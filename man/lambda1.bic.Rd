@@ -7,6 +7,7 @@
 lambda1.bic(
   Y,
   X,
+  lad = TRUE,
   lambda1.min = 0,
   lambda1.max = 5,
   len1 = 10,
@@ -20,6 +21,8 @@ lambda1.bic(
 \item{Y}{an nxq matrix.}
 
 \item{X}{an nxp matrix.}
+
+\item{lad}{logical. If lad=TRUE, fused LAD-lasso is used, otherwise fused lasso is used.}
 
 \item{lambda1.min}{the minimum value of the grid of \eqn{\lambda_1}'s.}
 
@@ -45,6 +48,7 @@ A list with the following components
 \item{lambda2}{the tuning parameter \eqn{\lambda_2}.}
 \item{bic}{vector of values of BIC-type criterion in the grid points.}
 \item{lbdmin}{the value of lambda1 that minimizes the BIC-type criterion.}
+\item{sigmahat}{sigmahat}
 \item{tpoint}{the type of value of \eqn{\lambda_1} that minimizes
 the BIC-type criterion: tpoint=1, if the value of \eqn{\lambda_1} that
 minimizes the BIC-type criterion is lambda1.min,
