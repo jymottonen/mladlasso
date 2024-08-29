@@ -137,7 +137,7 @@ functionalladlasso<-function(Y, X, initialB=NULL, lambda1=0, lambda2=0, lpen=1:d
   }
   
   res<-optim(beta0, fn, gr=NULL, method="BFGS",
-             control=list(maxit=10000,reltol=1e-10,trace=1), Y=Y, X=X, lambda1=lambda1, lambda2=lambda2)
+             control=list(maxit=10000,reltol=1e-8,trace=6), Y=Y, X=X, lambda1=lambda1, lambda2=lambda2)
   beta<-matrix(res$par,p+1,q)
   resid<-Y-cbind(1,X)%*%beta
   value<-res$value
