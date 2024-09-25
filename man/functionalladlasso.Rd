@@ -10,7 +10,8 @@ functionalladlasso(
   initialB = NULL,
   lambda1 = 0,
   lambda2 = 0,
-  lpen = 1:dim(X)[2]
+  lpen = 1:dim(X)[2],
+  method = "BFGS"
 )
 }
 \arguments{
@@ -29,6 +30,10 @@ are generated from standard normal distribution.}
 
 \item{lpen}{gives the lasso penalized coefficients. For example, lpen=c(2,5:8)
 means that the coefficient vectors \eqn{\beta_2, \beta_5,...,\beta_8} are penalized.}
+
+\item{method}{the optimization method to be used. The choices are "BFGS", "Nelder-Mead",
+"CG", "L-BFGS-B", "SANN", "Brent" The default method is "BFGS". See the Details of the
+function optim in package stats.}
 }
 \value{
 A list containing the following components:

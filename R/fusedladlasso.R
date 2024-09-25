@@ -24,6 +24,7 @@
 #' \item{lambda2}{the tuning parameter \eqn{\lambda_2} for the fusion-penalty}
 #' \item{iter}{the number of iterations}
 #' \item{runtime}{the runtime of the function.}
+#' \item{value}{the minimized value of the objective function.}
 #' }
 #' @references 
 #' Oja, H. (2010), \emph{Multivariate Nonparametric Methods with R. 
@@ -137,7 +138,7 @@ fusedladlasso<-function(Y, X, initialB=NULL, lambda1=0, lambda2=0,
   runt<-proc.time()[[3]]-begt
   rownames(beta)<-c("Int",colnames(x)[-1])
   colnames(beta)<-colnames(y)
-  fit<-list(beta=beta,residuals=resid,lambda1=lambda1,lambda2=lambda2,iter=mod$iter,runtime=runt)
+  fit<-list(beta=beta,residuals=resid,lambda1=lambda1,lambda2=lambda2,iter=mod$iter,runtime=runt,value=mod$value)
   class(fit) <- "fusedladlasso"
   return(fit)
 }
