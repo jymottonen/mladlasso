@@ -43,6 +43,7 @@ A list containing the following components:
 \item{lambda2}{the tuning parameter \eqn{\lambda_2} for the fusion-penalty}
 \item{iter}{the number of iterations}
 \item{runtime}{the runtime of the function.}
+\item{value}{the minimized value of the objective function.}
 }
 }
 \description{

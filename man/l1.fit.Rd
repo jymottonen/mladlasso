@@ -27,6 +27,7 @@ A list containing the following components:
 \item{coefficients}{L1 estimate of the coefficient matrix}
 \item{initial}{initial value of the coefficient matrix}
 \item{iter}{the number of iterations}
+\item{value}{the minimized value of the objective function}
 }
 }
 \description{

@@ -12,6 +12,9 @@
 #' @param lambda2 the tuning parameter\eqn{\lambda_2} for the functional penalty.
 #' @param lpen gives the lasso penalized coefficients. For example, lpen=c(2,5:8)
 #' means that the coefficient vectors \eqn{\beta_2, \beta_5,...,\beta_8} are penalized.
+#' @param method the optimization method to be used. The choices are "BFGS", "Nelder-Mead", 
+#' "CG", "L-BFGS-B", "SANN", "Brent" The default method is "BFGS". See the Details of the 
+#' function optim in package stats.
 #' @details 
 #' Here are the details of the function...
 #' @return A list containing the following components:
@@ -46,7 +49,7 @@
 #' @importFrom MASS ginv
 #' @import SpatialNP
 #' @export
-functionalladlasso<-function(Y, X, initialB=NULL, lambda1=0, lambda2=0, lpen=1:dim(X)[2])
+functionalladlasso<-function(Y, X, initialB=NULL, lambda1=0, lambda2=0, lpen=1:dim(X)[2], method="BFGS")
 {
   if(is.data.frame(Y))Y<-as.matrix(Y)
   if(is.data.frame(X))X<-as.matrix(X)
@@ -75,6 +78,7 @@ functionalladlasso<-function(Y, X, initialB=NULL, lambda1=0, lambda2=0, lpen=1:d
           penalty2<-penalty2+abs(B[i,j]-B[i,j-1])
       lad+lambda2*penalty2
     }
+    dfn<-NULL
   }
   else if((lambda1>0)&(lambda2==0))
   {
@@ -87,6 +91,7 @@ functionalladlasso<-function(Y, X, initialB=NULL, lambda1=0, lambda2=0, lpen=1:d
       penalty1<-sum(sqrt(diag(B1%*%t(B1))))
       lad+lambda1*penalty1
     }
+    dfn<-NULL
   }
   else if((lambda1>0)&(lambda2>0))
   {
@@ -103,6 +108,7 @@ functionalladlasso<-function(Y, X, initialB=NULL, lambda1=0, lambda2=0, lpen=1:d
           penalty2<-penalty2+abs(B[i,j]-B[i,j-1])
       lad+lambda1*penalty1+lambda2*penalty2
     }
+    dfn<-NULL
   }
   else if((lambda1==0)&(lambda2==0))
   {
@@ -111,18 +117,18 @@ functionalladlasso<-function(Y, X, initialB=NULL, lambda1=0, lambda2=0, lpen=1:d
       E<-Y-cbind(1,X)%*%B
       mean(sqrt(diag(E%*%t(E))))
     }
+    dfn<-function(beta,Y,X,lambda1,lambda2){
+      B<-matrix(beta,p+1,q)
+      E<-Y-cbind(1,X)%*%B
+      norm.E <-  sqrt(rowSums(E^2))
+      eps.S<-1e-6
+      if (min(norm.E) < eps.S) norm.E <- ifelse(norm.E < eps.S, eps.S, norm.E)
+      E.sign <- sweep(E,1,norm.E, "/")
+      -(1/n)*c(t(cbind(1,X))%*%E.sign)
+    }
   }
   else
     stop("lambda1 and lambda2 should be non-negative numbers")
-  
-  #The gradient of fn
-  dfn<-function(beta,Y,X){
-    B<-matrix(beta,q,p)
-    E<-Y-X%*%B
-    norm.E<-norm(E)
-    E.sign<-sweep(E,1,norm.E, "/")
-    -(1/n)*c(t(X)%*%E.sign)
-  }
   
   begt=proc.time()[[3]]
   if(is.null(initialB)){
@@ -136,8 +142,8 @@ functionalladlasso<-function(Y, X, initialB=NULL, lambda1=0, lambda2=0, lpen=1:d
     beta0<-c(B0)
   }
   
-  res<-optim(beta0, fn, gr=NULL, method="BFGS",
-             control=list(maxit=10000,reltol=1e-8,trace=6), Y=Y, X=X, lambda1=lambda1, lambda2=lambda2)
+  res<-optim(beta0, fn, gr=dfn, method=method,
+             control=list(maxit=100000,reltol=1e-8,trace=1), Y=Y, X=X, lambda1=lambda1, lambda2=lambda2)
   beta<-matrix(res$par,p+1,q)
   resid<-Y-cbind(1,X)%*%beta
   value<-res$value
