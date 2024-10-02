@@ -11,7 +11,8 @@ functionalladlasso(
   lambda1 = 0,
   lambda2 = 0,
   lpen = 1:dim(X)[2],
-  method = "BFGS"
+  method = "BFGS",
+  gradient = FALSE
 )
 }
 \arguments{
@@ -34,6 +35,8 @@ means that the coefficient vectors \eqn{\beta_2, \beta_5,...,\beta_8} are penali
 \item{method}{the optimization method to be used. The choices are "BFGS", "Nelder-Mead",
 "CG", "L-BFGS-B", "SANN", "Brent" The default method is "BFGS". See the Details of the
 function optim in package stats.}
+
+\item{gradient}{a logical evaluating to TRUE or FALSE indicating whether gradient is used when method="BFGS".}
 }
 \value{
 A list containing the following components:

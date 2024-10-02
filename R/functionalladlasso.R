@@ -15,6 +15,7 @@
 #' @param method the optimization method to be used. The choices are "BFGS", "Nelder-Mead", 
 #' "CG", "L-BFGS-B", "SANN", "Brent" The default method is "BFGS". See the Details of the 
 #' function optim in package stats.
+#' @param gradient a logical evaluating to TRUE or FALSE indicating whether gradient is used when method="BFGS".
 #' @details 
 #' Here are the details of the function...
 #' @return A list containing the following components:
@@ -49,7 +50,8 @@
 #' @importFrom MASS ginv
 #' @import SpatialNP
 #' @export
-functionalladlasso<-function(Y, X, initialB=NULL, lambda1=0, lambda2=0, lpen=1:dim(X)[2], method="BFGS")
+functionalladlasso<-function(Y, X, initialB=NULL, lambda1=0, lambda2=0, 
+                             lpen=1:dim(X)[2], method="BFGS", gradient=FALSE)
 {
   if(is.data.frame(Y))Y<-as.matrix(Y)
   if(is.data.frame(X))X<-as.matrix(X)
@@ -78,7 +80,19 @@ functionalladlasso<-function(Y, X, initialB=NULL, lambda1=0, lambda2=0, lpen=1:d
           penalty2<-penalty2+abs(B[i,j]-B[i,j-1])
       lad+lambda2*penalty2
     }
-    dfn<-NULL
+    dfn<-function(beta,Y,X,lambda1,lambda2){
+      B<-matrix(beta,p+1,q)
+      E<-Y-cbind(1,X)%*%B
+      norm.E <-  sqrt(rowSums(E^2))
+      eps.S<-1e-6
+      if (min(norm.E) < eps.S) norm.E <- ifelse(norm.E < eps.S, eps.S, norm.E)
+      E.sign <- sweep(E,1,norm.E, "/")
+      dlad<- -(1/n)*c(t(cbind(1,X))%*%E.sign)
+      mat1<-cbind(0,diag(p))
+      mat2<-rbind(0,diag(q-1))-rbind(diag(q-1),0)
+      dfunctional<-lambda2*c(sign(mat1%*%B%*%mat2)%*%t(mat2))
+      dlad+dfunctional
+    }
   }
   else if((lambda1>0)&(lambda2==0))
   {
@@ -142,7 +156,12 @@ functionalladlasso<-function(Y, X, initialB=NULL, lambda1=0, lambda2=0, lpen=1:d
     beta0<-c(B0)
   }
   
-  res<-optim(beta0, fn, gr=dfn, method=method,
+  if(gradient)
+    gradfn<-dfn
+  else
+    gradfn<-NULL
+  
+  res<-optim(beta0, fn, gr=gradfn, method=method,
              control=list(maxit=100000,reltol=1e-8,trace=1), Y=Y, X=X, lambda1=lambda1, lambda2=lambda2)
   beta<-matrix(res$par,p+1,q)
   resid<-Y-cbind(1,X)%*%beta
