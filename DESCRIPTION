@@ -1,5 +1,5 @@
 Package: mladlasso
-Title: Multivariate LAD-lasso estimation
+Title: Multivariate LAD-lasso regression methods
 Version: 0.3.1
 Authors@R: c(
     person("Jyrki", "Mottonen", , "jyrki.mottonen@helsinki.fi", role = c("aut", "cre"),
@@ -7,7 +7,7 @@ Authors@R: c(
     person("Tero", "Lähderanta", , "Tero.Lahderanta@oulu.fi", role = c("aut"),
            comment = c(ORCID = "0000-0001-5856-2899"))       
            )
-Description: What the package does (one paragraph).
+Description: Multivariate LAD-lasso regression methods. 
 License: GPL (>= 3)  + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

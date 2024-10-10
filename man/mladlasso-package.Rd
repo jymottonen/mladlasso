@@ -4,9 +4,9 @@
 \name{mladlasso-package}
 \alias{mladlasso}
 \alias{mladlasso-package}
-\title{mladlasso: Multivariate LAD-lasso estimation}
+\title{mladlasso: Multivariate LAD-lasso regression methods}
 \description{
-What the package does (one paragraph).
+Multivariate LAD-lasso regression methods.
 }
 \seealso{
 Useful links:
