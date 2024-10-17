@@ -4,8 +4,7 @@
 #'
 #' @param Y an nxq matrix of responses. The ith row contains the q-variate response
 #' of the ith individual.
-#' @param X an nxp matrix of p explaining variables, The ith row contains the values
-#' of p explaining variables for the ith individual.
+#' @param X an nx(p+1) design matrix. 
 #' @param initialB initial value of the coefficient matrix
 #' @param maxiter maxiter
 #' @param eps eps
@@ -62,6 +61,7 @@ l1.fit <- function(Y, X, initialB = NULL, maxiter = 1000, eps = 1e-6, eps.S = 1e
   colnames(B)<- colnames(Y)
   rownames(B)<- colnames(X)        
  
+  E <- Y - X %*% B
   value<-mean(sqrt(diag(E%*%t(E))))
   
   list(coefficients=B, initial=initialB, iter=iter, value=value)
