@@ -135,10 +135,12 @@ fusedladlasso<-function(Y, X, initialB=NULL, lambda1=0, lambda2=0,
   mod<-l1.fit(y,x,initialB,maxiter = 20000,eps = 1e-6, eps.S = 1e-6)
   beta<-as.matrix(mod$coefficients)
   resid<-Y0-cbind(1,X0)%*%beta
+  n1<-dim(y)[1]
+  value<-(n1/n)*mod$value
   runt<-proc.time()[[3]]-begt
   rownames(beta)<-c("Int",colnames(x)[-1])
   colnames(beta)<-colnames(y)
-  fit<-list(beta=beta,residuals=resid,lambda1=lambda1,lambda2=lambda2,iter=mod$iter,runtime=runt,value=mod$value)
+  fit<-list(beta=beta,residuals=resid,lambda1=lambda1,lambda2=lambda2,iter=mod$iter,runtime=runt,value=value)
   class(fit) <- "fusedladlasso"
   return(fit)
 }

@@ -70,6 +70,7 @@ functionalladlasso<-function(Y, X, initialB=NULL, lambda1=0, lambda2=0,
 
   penalty1<-function(B)
   {
+    p<-nrow(B)-1
     W<-cbind(0,diag(p)[lpen,])
     B1<-W%*%B
     sum(sqrt(diag(B1%*%t(B1))))
@@ -77,6 +78,8 @@ functionalladlasso<-function(Y, X, initialB=NULL, lambda1=0, lambda2=0,
   
   penalty2<-function(B)
   {
+    p<-nrow(B)-1
+    q<-ncol(B)
     mat1<-cbind(0,diag(p))
     mat2<-rbind(0,diag(q-1))-rbind(diag(q-1),0)
     sum(abs(mat1%*%B%*%mat2))
@@ -126,7 +129,8 @@ functionalladlasso<-function(Y, X, initialB=NULL, lambda1=0, lambda2=0,
       norm.B <-  sqrt(rowSums(B^2))
       if (min(norm.B) < eps.S) norm.B <- ifelse(norm.B < eps.S, eps.S, norm.B)
       B.sign <- sweep(B,1,norm.B, "/")
-      dlasso<-c(rbind(0,B.sign[-1,]))
+      B.sign[1,]<-0
+      dlasso<-lambda1*c(B.sign)
       dlad+dlasso
     }
   }
@@ -151,7 +155,8 @@ functionalladlasso<-function(Y, X, initialB=NULL, lambda1=0, lambda2=0,
       norm.B <-  sqrt(rowSums(B^2))
       if (min(norm.B) < eps.S) norm.B <- ifelse(norm.B < eps.S, eps.S, norm.B)
       B.sign <- sweep(B,1,norm.B, "/")
-      dlasso<-c(rbind(0,B.sign[-1,]))
+      B.sign[1,]<-0
+      dlasso<-lambda1*c(B.sign)
       #derivative of the functional penalty part
       mat1<-cbind(0,diag(p))
       mat2<-rbind(0,diag(q-1))-rbind(diag(q-1),0)
@@ -199,7 +204,7 @@ functionalladlasso<-function(Y, X, initialB=NULL, lambda1=0, lambda2=0,
     gradfn<-NULL
   
   res<-optim(beta0, fn, gr=gradfn, method=method,
-             control=list(maxit=100000,reltol=1e-8,trace=1), Y=Y, X=X, lambda1=lambda1, lambda2=lambda2)
+             control=list(maxit=100000,reltol=1e-9,trace=1), Y=Y, X=X, lambda1=lambda1, lambda2=lambda2)
   beta<-matrix(res$par,p+1,q)
   resid<-Y-cbind(1,X)%*%beta
   value<-res$value
