@@ -10,8 +10,7 @@ l1.fit(Y, X, initialB = NULL, maxiter = 1000, eps = 1e-06, eps.S = 1e-06)
 \item{Y}{an nxq matrix of responses. The ith row contains the q-variate response
 of the ith individual.}
 
-\item{X}{an nxp matrix of p explaining variables, The ith row contains the values
-of p explaining variables for the ith individual.}
+\item{X}{an nx(p+1) design matrix.}
 
 \item{initialB}{initial value of the coefficient matrix}
 
