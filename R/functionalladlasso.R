@@ -16,6 +16,9 @@
 #' "CG", "L-BFGS-B", "SANN", "Brent" The default method is "BFGS". See the Details of the 
 #' function optim in package stats.
 #' @param gradient a logical evaluating to TRUE or FALSE indicating whether gradient is used when method="BFGS".
+#' @param functional functional penalty.
+#' @param reltol Relative convergence tolerance of the function optim.
+#' @param trace Non-negative integer. If positive, tracing information on the progress of the optimization is produced.
 #' @details 
 #' Here are the details of the function...
 #' @return A list containing the following components:
@@ -51,7 +54,8 @@
 #' @import SpatialNP
 #' @export
 functionalladlasso<-function(Y, X, initialB=NULL, lambda1=0, lambda2=0, 
-                             lpen=1:dim(X)[2], method="BFGS", gradient=FALSE)
+                             lpen=1:dim(X)[2], method="BFGS", gradient=FALSE,functional=1,
+                             reltol=1e-9,trace=0)
 {
   if(is.data.frame(Y))Y<-as.matrix(Y)
   if(is.data.frame(X))X<-as.matrix(X)
@@ -85,6 +89,16 @@ functionalladlasso<-function(Y, X, initialB=NULL, lambda1=0, lambda2=0,
     sum(abs(mat1%*%B%*%mat2))
   }
  
+  penalty3<-function(B)
+  {
+    p<-nrow(B)-1
+    q<-ncol(B)
+    mat1<-cbind(0,diag(p))
+    mat2<-rbind(0,diag(q-1))-rbind(diag(q-1),0)
+    diff<-mat1%*%B%*%mat2
+    sum(sqrt(diag(t(diff)%*%diff)))
+  }
+  
   if((lambda1==0)&(lambda2>0))
   {
     fn<-function(beta,Y,X,lambda1,lambda2){
@@ -92,6 +106,12 @@ functionalladlasso<-function(Y, X, initialB=NULL, lambda1=0, lambda2=0,
       E<-Y-cbind(1,X)%*%B
       lad<-mean(sqrt(diag(E%*%t(E))))
       lad+lambda2*penalty2(B)
+    }
+    fn2<-function(beta,Y,X,lambda1,lambda2){
+      B<-matrix(beta,p+1,q)
+      E<-Y-cbind(1,X)%*%B
+      lad<-mean(sqrt(diag(E%*%t(E))))
+      lad+lambda2*penalty3(B)
     }
     dfn<-function(beta,Y,X,lambda1,lambda2){
       B<-matrix(beta,p+1,q)
@@ -107,6 +127,24 @@ functionalladlasso<-function(Y, X, initialB=NULL, lambda1=0, lambda2=0,
       dfunctional<-lambda2*c(sign(mat1%*%B%*%mat2)%*%t(mat2))
       dlad+dfunctional
     }
+    dfn2<-function(beta,Y,X,lambda1,lambda2){
+      B<-matrix(beta,p+1,q)
+      E<-Y-cbind(1,X)%*%B
+      norm.E <-  sqrt(rowSums(E^2))
+      eps.S<-1e-6
+      if (min(norm.E) < eps.S) norm.E <- ifelse(norm.E < eps.S, eps.S, norm.E)
+      E.sign <- sweep(E,1,norm.E, "/")
+      dlad<- -(1/n)*c(t(cbind(1,X))%*%E.sign)
+      #derivative of the functional penalty part 
+      mat1<-cbind(0,diag(p))
+      mat2<-rbind(0,diag(q-1))-rbind(diag(q-1),0)
+      diff<-mat1%*%B%*%mat2
+      norm.diff <-  sqrt(colSums(diff^2))
+      if (min(norm.diff) < eps.S) norm.diff <- ifelse(norm.diff < eps.S, eps.S, norm.diff)
+      W <- sweep(diff,2,norm.diff, "/")
+      dfunctional<-lambda2*rbind(0,W%*%t(mat2))
+      dlad+dfunctional
+    }
   }
   else if((lambda1>0)&(lambda2==0))
   {
@@ -116,6 +154,7 @@ functionalladlasso<-function(Y, X, initialB=NULL, lambda1=0, lambda2=0,
       lad<-mean(sqrt(diag(E%*%t(E))))
       lad+lambda1*penalty1(B)
     }
+    fn2<-fn
     dfn<-function(beta,Y,X,lambda1,lambda2){
       B<-matrix(beta,p+1,q)
       #derivative of the lad part
@@ -142,6 +181,12 @@ functionalladlasso<-function(Y, X, initialB=NULL, lambda1=0, lambda2=0,
       lad<-mean(sqrt(diag(E%*%t(E))))
       lad+lambda1*penalty1(B)+lambda2*penalty2(B)
     }
+    fn2<-function(beta,Y,X,lambda1,lambda2){
+      B<-matrix(beta,p+1,q)
+      E<-Y-cbind(1,X)%*%B
+      lad<-mean(sqrt(diag(E%*%t(E))))
+      lad+lambda1*penalty1(B)+lambda2*penalty3(B)
+    }
     dfn<-function(beta,Y,X,lambda1,lambda2){
       B<-matrix(beta,p+1,q)
       #derivative of the lad part
@@ -160,7 +205,11 @@ functionalladlasso<-function(Y, X, initialB=NULL, lambda1=0, lambda2=0,
       #derivative of the functional penalty part
       mat1<-cbind(0,diag(p))
       mat2<-rbind(0,diag(q-1))-rbind(diag(q-1),0)
-      dfunctional<-lambda2*c(sign(mat1%*%B%*%mat2)%*%t(mat2))
+      diff<-mat1%*%B%*%mat2
+      norm.diff <-  sqrt(colSums(diff^2))
+      if (min(norm.diff) < eps.S) norm.diff <- ifelse(norm.diff < eps.S, eps.S, norm.diff)
+      W <- sweep(diff,2,norm.diff, "/")
+      dfunctional<-lambda2*rbind(0,W%*%t(mat2))
       dlad+dlasso+dfunctional
     }
   }
@@ -198,13 +247,20 @@ functionalladlasso<-function(Y, X, initialB=NULL, lambda1=0, lambda2=0,
     beta0<-c(B0)
   }
   
+  if(functional==2)
+  {
+    fn<-fn2
+    dfn<-dfn2
+  }
+  
   if(gradient)
     gradfn<-dfn
   else
     gradfn<-NULL
   
   res<-optim(beta0, fn, gr=gradfn, method=method,
-             control=list(maxit=100000,reltol=1e-9,trace=1), Y=Y, X=X, lambda1=lambda1, lambda2=lambda2)
+             control=list(maxit=100000,reltol=reltol,trace=trace), 
+             Y=Y, X=X, lambda1=lambda1, lambda2=lambda2)
   beta<-matrix(res$par,p+1,q)
   resid<-Y-cbind(1,X)%*%beta
   value<-res$value

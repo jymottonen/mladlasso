@@ -12,7 +12,10 @@ functionalladlasso(
   lambda2 = 0,
   lpen = 1:dim(X)[2],
   method = "BFGS",
-  gradient = FALSE
+  gradient = FALSE,
+  functional = 1,
+  reltol = 1e-09,
+  trace = 0
 )
 }
 \arguments{
@@ -37,6 +40,12 @@ means that the coefficient vectors \eqn{\beta_2, \beta_5,...,\beta_8} are penali
 function optim in package stats.}
 
 \item{gradient}{a logical evaluating to TRUE or FALSE indicating whether gradient is used when method="BFGS".}
+
+\item{functional}{functional penalty.}
+
+\item{reltol}{Relative convergence tolerance of the function optim.}
+
+\item{trace}{Non-negative integer. If positive, tracing information on the progress of the optimization is produced.}
 }
 \value{
 A list containing the following components:
