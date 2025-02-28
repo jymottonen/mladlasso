@@ -41,7 +41,9 @@ function optim in package stats.}
 
 \item{gradient}{a logical evaluating to TRUE or FALSE indicating whether gradient is used when method="BFGS".}
 
-\item{functional}{functional penalty.}
+\item{functional}{functional penalty. If functional=1, then the functional penalty
+is \eqn{\lambda_2\sum_{j=1}^p\sum_{k=2}^q|\beta_{j,k}-\beta_{j,k-1}|}. If functional=2,
+then the functional penalty is \eqn{\lambda_2\sum_{k=2}^q||\beta^{(k)}-\beta^{(k-1)}||}.}
 
 \item{reltol}{Relative convergence tolerance of the function optim.}
 

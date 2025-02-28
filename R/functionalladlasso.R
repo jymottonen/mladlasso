@@ -16,7 +16,9 @@
 #' "CG", "L-BFGS-B", "SANN", "Brent" The default method is "BFGS". See the Details of the 
 #' function optim in package stats.
 #' @param gradient a logical evaluating to TRUE or FALSE indicating whether gradient is used when method="BFGS".
-#' @param functional functional penalty.
+#' @param functional functional penalty. If functional=1, then the functional penalty
+#' is \eqn{\lambda_2\sum_{j=1}^p\sum_{k=2}^q|\beta_{j,k}-\beta_{j,k-1}|}. If functional=2, 
+#' then the functional penalty is \eqn{\lambda_2\sum_{k=2}^q||\beta^{(k)}-\beta^{(k-1)}||}.
 #' @param reltol Relative convergence tolerance of the function optim.
 #' @param trace Non-negative integer. If positive, tracing information on the progress of the optimization is produced.
 #' @details 
@@ -49,7 +51,7 @@
 #' out<-functional.lad(Y,X,lambda1=0.2,lambda2=0.3)
 #' out$runtime
 #' }
-#' @importFrom stats optim rnorm
+#' @importFrom stats optim optimize rnorm
 #' @importFrom MASS ginv
 #' @import SpatialNP
 #' @export
@@ -71,16 +73,25 @@ functionalladlasso<-function(Y, X, initialB=NULL, lambda1=0, lambda2=0,
     colnames(Y)<-paste("y",1:q,sep="")
   if(is.null(colnames(X)))
     colnames(X)<-paste("x",1:p,sep="")
-
-  penalty1<-function(B)
+  if(lambda1>0)
   {
-    p<-nrow(B)-1
-    W<-cbind(0,diag(p)[lpen,])
-    B1<-W%*%B
-    sum(sqrt(diag(B1%*%t(B1))))
+    y1<-matrix(0,p,q)
+    y1<-y1[lpen,]
+    y<-rbind(Y,y1)   
+    x<-cbind(1,X)
+    x1<-cbind(0,n*lambda1*diag(p))
+    x1<-x1[lpen,]
+    x<-rbind(x,x1)  
   }
+  else if(lambda1==0)
+  {
+    y<-Y
+    x<-cbind(1,X)
+  }
+  else
+    stop("lambda1 should be a non-negative number")
   
-  penalty2<-function(B)
+  penalty1<-function(B)
   {
     p<-nrow(B)-1
     q<-ncol(B)
@@ -89,7 +100,7 @@ functionalladlasso<-function(Y, X, initialB=NULL, lambda1=0, lambda2=0,
     sum(abs(mat1%*%B%*%mat2))
   }
  
-  penalty3<-function(B)
+  penalty2<-function(B)
   {
     p<-nrow(B)-1
     q<-ncol(B)
@@ -99,28 +110,28 @@ functionalladlasso<-function(Y, X, initialB=NULL, lambda1=0, lambda2=0,
     sum(sqrt(diag(t(diff)%*%diff)))
   }
   
-  if((lambda1==0)&(lambda2>0))
+  if(lambda2>0)
   {
-    fn<-function(beta,Y,X,lambda1,lambda2){
+    fn1<-function(beta,Y,X,lambda1,lambda2){
       B<-matrix(beta,p+1,q)
-      E<-Y-cbind(1,X)%*%B
+      E<-Y-X%*%B
       lad<-mean(sqrt(diag(E%*%t(E))))
-      lad+lambda2*penalty2(B)
+      lad+lambda2*penalty1(B)
     }
     fn2<-function(beta,Y,X,lambda1,lambda2){
       B<-matrix(beta,p+1,q)
-      E<-Y-cbind(1,X)%*%B
+      E<-Y-X%*%B
       lad<-mean(sqrt(diag(E%*%t(E))))
-      lad+lambda2*penalty3(B)
+      lad+lambda2*penalty2(B)
     }
-    dfn<-function(beta,Y,X,lambda1,lambda2){
+    dfn1<-function(beta,Y,X,lambda1,lambda2){
       B<-matrix(beta,p+1,q)
-      E<-Y-cbind(1,X)%*%B
+      E<-Y-X%*%B
       norm.E <-  sqrt(rowSums(E^2))
       eps.S<-1e-6
       if (min(norm.E) < eps.S) norm.E <- ifelse(norm.E < eps.S, eps.S, norm.E)
       E.sign <- sweep(E,1,norm.E, "/")
-      dlad<- -(1/n)*c(t(cbind(1,X))%*%E.sign)
+      dlad<- -(1/n)*c(t(X)%*%E.sign)
       #derivative of the functional penalty part 
       mat1<-cbind(0,diag(p))
       mat2<-rbind(0,diag(q-1))-rbind(diag(q-1),0)
@@ -129,12 +140,12 @@ functionalladlasso<-function(Y, X, initialB=NULL, lambda1=0, lambda2=0,
     }
     dfn2<-function(beta,Y,X,lambda1,lambda2){
       B<-matrix(beta,p+1,q)
-      E<-Y-cbind(1,X)%*%B
+      E<-Y-X%*%B
       norm.E <-  sqrt(rowSums(E^2))
       eps.S<-1e-6
       if (min(norm.E) < eps.S) norm.E <- ifelse(norm.E < eps.S, eps.S, norm.E)
       E.sign <- sweep(E,1,norm.E, "/")
-      dlad<- -(1/n)*c(t(cbind(1,X))%*%E.sign)
+      dlad<- -(1/n)*c(t(X)%*%E.sign)
       #derivative of the functional penalty part 
       mat1<-cbind(0,diag(p))
       mat2<-rbind(0,diag(q-1))-rbind(diag(q-1),0)
@@ -146,100 +157,33 @@ functionalladlasso<-function(Y, X, initialB=NULL, lambda1=0, lambda2=0,
       dlad+dfunctional
     }
   }
-  else if((lambda1>0)&(lambda2==0))
+  else if(lambda2==0)
   {
-    fn<-function(beta,Y,X,lambda1,lambda2){
+    fn1<-function(beta,Y,X,lambda1,lambda2){
       B<-matrix(beta,p+1,q)
-      E<-Y-cbind(1,X)%*%B
-      lad<-mean(sqrt(diag(E%*%t(E))))
-      lad+lambda1*penalty1(B)
+      E<-Y-X%*%B
+      mean(sqrt(diag(E%*%t(E))))
     }
-    fn2<-fn
-    dfn<-function(beta,Y,X,lambda1,lambda2){
+    fn2<-fn1
+    dfn1<-function(beta,Y,X,lambda1,lambda2){
       B<-matrix(beta,p+1,q)
       #derivative of the lad part
-      E<-Y-cbind(1,X)%*%B
+      E<-Y-X%*%B
       norm.E <-  sqrt(rowSums(E^2))
       eps.S<-1e-6
       if (min(norm.E) < eps.S) norm.E <- ifelse(norm.E < eps.S, eps.S, norm.E)
       E.sign <- sweep(E,1,norm.E, "/")
-      dlad<- -(1/n)*c(t(cbind(1,X))%*%E.sign)
-      #derivative of the lasso penalty part
-      norm.B <-  sqrt(rowSums(B^2))
-      if (min(norm.B) < eps.S) norm.B <- ifelse(norm.B < eps.S, eps.S, norm.B)
-      B.sign <- sweep(B,1,norm.B, "/")
-      B.sign[1,]<-0
-      dlasso<-lambda1*c(B.sign)
-      dlad+dlasso
+      -(1/n)*c(t(X)%*%E.sign)
     }
-  }
-  else if((lambda1>0)&(lambda2>0))
-  {
-    fn<-function(beta,Y,X,lambda1,lambda2){
-      B<-matrix(beta,p+1,q)
-      E<-Y-cbind(1,X)%*%B
-      lad<-mean(sqrt(diag(E%*%t(E))))
-      lad+lambda1*penalty1(B)+lambda2*penalty2(B)
-    }
-    fn2<-function(beta,Y,X,lambda1,lambda2){
-      B<-matrix(beta,p+1,q)
-      E<-Y-cbind(1,X)%*%B
-      lad<-mean(sqrt(diag(E%*%t(E))))
-      lad+lambda1*penalty1(B)+lambda2*penalty3(B)
-    }
-    dfn<-function(beta,Y,X,lambda1,lambda2){
-      B<-matrix(beta,p+1,q)
-      #derivative of the lad part
-      E<-Y-cbind(1,X)%*%B
-      norm.E <-  sqrt(rowSums(E^2))
-      eps.S<-1e-6
-      if (min(norm.E) < eps.S) norm.E <- ifelse(norm.E < eps.S, eps.S, norm.E)
-      E.sign <- sweep(E,1,norm.E, "/")
-      dlad<- -(1/n)*c(t(cbind(1,X))%*%E.sign)
-      #derivative of the lasso penalty part
-      norm.B <-  sqrt(rowSums(B^2))
-      if (min(norm.B) < eps.S) norm.B <- ifelse(norm.B < eps.S, eps.S, norm.B)
-      B.sign <- sweep(B,1,norm.B, "/")
-      B.sign[1,]<-0
-      dlasso<-lambda1*c(B.sign)
-      #derivative of the functional penalty part
-      mat1<-cbind(0,diag(p))
-      mat2<-rbind(0,diag(q-1))-rbind(diag(q-1),0)
-      diff<-mat1%*%B%*%mat2
-      norm.diff <-  sqrt(colSums(diff^2))
-      if (min(norm.diff) < eps.S) norm.diff <- ifelse(norm.diff < eps.S, eps.S, norm.diff)
-      W <- sweep(diff,2,norm.diff, "/")
-      dfunctional<-lambda2*rbind(0,W%*%t(mat2))
-      dlad+dlasso+dfunctional
-    }
-  }
-  else if((lambda1==0)&(lambda2==0))
-  {
-    fn<-function(beta,Y,X,lambda1,lambda2){
-      B<-matrix(beta,p+1,q)
-      E<-Y-cbind(1,X)%*%B
-      lad<-mean(sqrt(diag(E%*%t(E))))
-      lad
-    }
-    dfn<-function(beta,Y,X,lambda1,lambda2){
-      B<-matrix(beta,p+1,q)
-      #derivative of the lad part
-      E<-Y-cbind(1,X)%*%B
-      norm.E <-  sqrt(rowSums(E^2))
-      eps.S<-1e-6
-      if (min(norm.E) < eps.S) norm.E <- ifelse(norm.E < eps.S, eps.S, norm.E)
-      E.sign <- sweep(E,1,norm.E, "/")
-      -(1/n)*c(t(cbind(1,X))%*%E.sign)
-    }
+    dfn2<-dfn1
   }
   else
-    stop("lambda1 and lambda2 should be non-negative numbers")
+    stop("lambda2 should be a non-negative number")
   
   begt=proc.time()[[3]]
   if(is.null(initialB)){
     #B0<-rnorm((p+1)*q)
-    X1<-cbind(1,X)
-    B0<-ginv(t(X1)%*%X1)%*%t(X1)%*%Y
+    B0<-ginv(t(x)%*%x)%*%t(x)%*%y
     beta0<-c(B0)
   }
   else{
@@ -247,7 +191,12 @@ functionalladlasso<-function(Y, X, initialB=NULL, lambda1=0, lambda2=0,
     beta0<-c(B0)
   }
   
-  if(functional==2)
+  if(functional==1)
+  {
+    fn<-fn1
+    dfn<-dfn2
+  }
+  else if(functional==2)
   {
     fn<-fn2
     dfn<-dfn2
@@ -260,12 +209,41 @@ functionalladlasso<-function(Y, X, initialB=NULL, lambda1=0, lambda2=0,
   
   res<-optim(beta0, fn, gr=gradfn, method=method,
              control=list(maxit=100000,reltol=reltol,trace=trace), 
-             Y=Y, X=X, lambda1=lambda1, lambda2=lambda2)
+             Y=y, X=x, lambda1=lambda1, lambda2=lambda2)
   beta<-matrix(res$par,p+1,q)
   resid<-Y-cbind(1,X)%*%beta
   value<-res$value
   convergence<-res$convergence
   runt=proc.time()[[3]]-begt
+  
+  #delta<-0.00001
+  #N<-100
+  ##beta2.1<-seq(beta[2,1]-delta,beta[2,1]+delta,length=N)
+  #beta2.1<-seq(0.20262320,0.20262325,length=N)
+  #betai<-beta
+  #val<-NULL
+  #for(i in 1:N)
+  #{
+  #  betai[2,1]<-beta2.1[i]
+  #  val[i]<-fn(betai,y,x,lambda1,lambda2)
+  #}
+  #f<-function(beta2.1,beta,y,x,lambda1,lambda2)
+  #{
+  #  betai<-beta
+  #  betai[2,1]<-beta2.1
+  #  val[i]<-fn(betai,y,x,lambda1,lambda2)
+  #}
+  #delta<-0.00001
+  #minb<-beta[2,1]-delta
+  #maxb<-beta[2,1]+delta
+  #opt<-optimize(f,c(minb,maxb),tol=10e-10,beta=beta,y=y,x=x,lambda1=lambda1,lambda2=lambda2)
+  #print(opt)
+  #plot(beta2.1,val,type="l",ylim=c(min(opt$objective,val),max(val)))
+  #abline(h=opt$objective,col="blue",lty=2)
+  #abline(v=opt$minimum,col="blue",lty=2)
+  #abline(h=res$value,col="red",lty=3)
+  #abline(v=beta[2,1],col="red",lty=3)
+  
   rownames(beta)<-c("Int",colnames(X))
   colnames(beta)<-colnames(Y)
   fit<-list(beta=beta,residuals=resid,lambda1=lambda1,lambda2=lambda2,runtime=runt,convergence=convergence,value=value)

@@ -2,6 +2,7 @@
 
 S3method(plot,bic)
 S3method(plot,cv)
+S3method(plot,functionalladlasso)
 S3method(plot,fusedladlasso)
 S3method(summary,fusedladlasso)
 export(functionalladlasso)
@@ -22,4 +23,5 @@ importFrom(graphics,points)
 importFrom(graphics,title)
 importFrom(stats,median)
 importFrom(stats,optim)
+importFrom(stats,optimize)
 importFrom(stats,rnorm)
