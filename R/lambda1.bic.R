@@ -11,11 +11,6 @@
 #' @param len1 the number of values in the grid of \eqn{\lambda_1}'s
 #' @param lambda2 the (fixed) value of the tuning parameter \eqn{\lambda_2}. 
 #' @param scale the scale parameter of BIC.
-#' @param lpen gives the lasso penalized coefficients. For example, lpen=c(2,5:8)
-#' means that the coefficient vectors \eqn{\beta_2, \beta_5,...,\beta_8} are penalized.
-#' @param fpen a list of blocks of fusion penalized coefficients. For example, 
-#' fpen=list(2:5,10:20) means that the fusion penalty is 
-#' \eqn{\lambda_2[||\beta_3-\beta_2||+...+||\beta_5-\beta_4||+||\beta_{11}-\beta_{10}||+...+||\beta_{20}-\beta_{19}||}
 #' @details 
 #' Here are the details of the function...
 #' @return A list with the following components
@@ -52,8 +47,7 @@
 #' plot(out)
 #' }
 #' @export
-lambda1.bic<-function(Y,X,lad=TRUE,lambda1.min=0,lambda1.max=5,len1=10,lambda2=0,scale=10,
-                     lpen=1:dim(X)[2],fpen=list(1:dim(X)[2]))
+lambda1.bic<-function(Y,X,lad=TRUE,lambda1.min=0,lambda1.max=5,len1=10,lambda2=0,scale=10)
 {
   if(is.data.frame(Y))Y<-as.matrix(Y)
   if(is.data.frame(X))X<-as.matrix(X)
@@ -77,15 +71,15 @@ lambda1.bic<-function(Y,X,lad=TRUE,lambda1.min=0,lambda1.max=5,len1=10,lambda2=0
   
   if(lad){
     if(n>p)
-      mod0<-fusedladlasso(Y,X,lambda1=0,lambda2=0,lpen=lpen,fpen=fpen)
+      mod0<-fusedladlasso(Y,X,lambda1=0,lambda2=0)
     else
-      mod0<-fusedladlasso(Y,X,lambda1=0.001,lambda2=0,lpen=lpen,fpen=fpen)
+      mod0<-fusedladlasso(Y,X,lambda1=0.001,lambda2=0)
   }
   else{
     if(n>p)
-      mod0<-fusedlasso(Y,X,lambda1=0,lambda2=0,lpen=lpen,fpen=fpen)
+      mod0<-fusedlasso(Y,X,lambda1=0,lambda2=0)
     else
-      mod0<-fusedlasso(Y,X,lambda1=0.001,lambda2=0,lpen=lpen,fpen=fpen)
+      mod0<-fusedlasso(Y,X,lambda1=0.001,lambda2=0)
   }
   beta0<-mod0$beta
   E<-Y-cbind(1,X)%*%beta0
@@ -104,10 +98,10 @@ lambda1.bic<-function(Y,X,lad=TRUE,lambda1.min=0,lambda1.max=5,len1=10,lambda2=0
   for(i1 in 1:len1)
   {
     if(lad){
-      mod1<-fusedladlasso(Y,X,lambda1=lbd1[i1],lambda2=lambda2,lpen=lpen,fpen=fpen)
+      mod1<-fusedladlasso(Y,X,lambda1=lbd1[i1],lambda2=lambda2)
     }
     else{
-      mod1<-fusedlasso(Y,X,lambda1=lbd1[i1],lambda2=lambda2,lpen=lpen,fpen=fpen)
+      mod1<-fusedlasso(Y,X,lambda1=lbd1[i1],lambda2=lambda2)
     }
     beta<-mod1$beta
     E<-Y-cbind(1,X)%*%beta

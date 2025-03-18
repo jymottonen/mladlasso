@@ -17,6 +17,7 @@
 #' \item{initial}{initial value of the coefficient matrix}
 #' \item{iter}{the number of iterations}
 #' \item{value}{the minimized value of the objective function}
+#' \item{convergence}{convergence of the optimization routine. 0 indicates successful completion.}
 #' }
 #' @references 
 #' Oja, H. (2010), \emph{Multivariate Nonparametric Methods with R. 
@@ -38,12 +39,8 @@ l1.fit <- function(Y, X, initialB = NULL, maxiter = 1000, eps = 1e-6, eps.S = 1e
     initialB <- backsolve(ch.D, forwardsolve(ch.D, crossprod(X,Y), upper.tri=TRUE, transpose=TRUE))
   B <- initialB
  
-  while(diff>eps)
+  while((diff>eps)&(iter<maxiter))
   { 
-    if (iter==maxiter)
-    {
-      stop("maxiter reached without convergence")
-    } 
     E <- Y - X %*% B
     norm.E <-  sqrt(rowSums(E^2))
     if (min(norm.E) < eps.S) norm.E <- ifelse(norm.E < eps.S, eps.S, norm.E)
@@ -57,6 +54,12 @@ l1.fit <- function(Y, X, initialB = NULL, maxiter = 1000, eps = 1e-6, eps.S = 1e
     diff <- sqrt((sum((B.new-B)^2)))
     B <- B.new
   }
+  if(iter==maxiter)
+  {
+    convergence<-1
+  } 
+  else
+    convergence<-0
   
   colnames(B)<- colnames(Y)
   rownames(B)<- colnames(X)        
@@ -64,5 +67,5 @@ l1.fit <- function(Y, X, initialB = NULL, maxiter = 1000, eps = 1e-6, eps.S = 1e
   E <- Y - X %*% B
   value<-mean(sqrt(diag(E%*%t(E))))
   
-  list(coefficients=B, initial=initialB, iter=iter, value=value)
+  list(coefficients=B, initial=initialB, iter=iter, convergence=convergence, value=value)
 }

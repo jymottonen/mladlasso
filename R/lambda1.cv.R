@@ -10,11 +10,6 @@
 #' @param lambda1.max the maximum value of the grid of \eqn{\lambda_1}'s.
 #' @param len1 the number of values in the grid of \eqn{\lambda_1}'s
 #' @param lambda2 the (fixed) value of the tuning parameter \eqn{\lambda_2}. 
-#' @param lpen gives the lasso penalized coefficients. For example, lpen=c(2,5:8)
-#' means that the coefficient vectors  \eqn{\beta_2, \beta_5,...,\beta_8} are penalized.
-#' @param fpen a list of blocks of fusion penalized coefficients. For example, 
-#' fpen=list(2:5,10:20) means that the fusion penalty is 
-#' \eqn{\lambda_2[||\beta_3-\beta_2||+...+||\beta_5-\beta_4||+||\beta_{11}-\beta_{10}||+...+||\beta_{20}-\beta_{19}||}
 #' @details 
 #' Here are the details of the function...
 #' @return A list with the following components
@@ -56,8 +51,7 @@
 #' }
 #' @importFrom stats median
 #' @export
-lambda1.cv<-function(Y,X,lad=TRUE,lambda1.min=0,lambda1.max=5,len1=10,lambda2=0,
-                     lpen=1:dim(X)[2],fpen=list(1:dim(X)[2]))
+lambda1.cv<-function(Y,X,lad=TRUE,lambda1.min=0,lambda1.max=5,len1=10,lambda2=0)
 {
   #
   # 5-fold cross-validation for lambda1 with lambda2 fixed
@@ -96,12 +90,12 @@ lambda1.cv<-function(Y,X,lad=TRUE,lambda1.min=0,lambda1.max=5,len1=10,lambda2=0,
       if(lad)
       {
         mod1<-fusedladlasso(Y[groups!=j,],X[groups!=j,],
-                            lambda1=lbd1[i1],lambda2=lambda2,lpen=lpen,fpen=fpen)
+                            lambda1=lbd1[i1],lambda2=lambda2)
       }
       else
       {
         mod1<-fusedlasso(Y[groups!=j,],X[groups!=j,],
-                        lambda1=lbd1[i1],lambda2=lambda2,lpen=lpen,fpen=fpen)
+                        lambda1=lbd1[i1],lambda2=lambda2)
       }
       beta<-mod1$beta
       E<-Y[groups==j,]-cbind(1,X[groups==j,])%*%beta
@@ -114,11 +108,11 @@ lambda1.cv<-function(Y,X,lad=TRUE,lambda1.min=0,lambda1.max=5,len1=10,lambda2=0,
     cv.mse[i1]<-mean(mse)
     if(lad)
     {
-      mod1<-fusedladlasso(Y,X,lambda1=lbd1[i1],lambda2=lambda2,lpen=lpen,fpen=fpen)
+      mod1<-fusedladlasso(Y,X,lambda1=lbd1[i1],lambda2=lambda2)
     }
     else
     {
-      mod1<-fusedlasso(Y,X,lambda1=lbd1[i1],lambda2=lambda2,lpen=lpen,fpen=fpen)
+      mod1<-fusedlasso(Y,X,lambda1=lbd1[i1],lambda2=lambda2)
     }
     beta<-mod1$beta  
     h[i1]<-sum(abs(beta[-1,])>1.0e-8)

@@ -10,29 +10,41 @@ fusedladlasso(
   initialB = NULL,
   lambda1 = 0,
   lambda2 = 0,
-  lpen = 1:dim(X)[2],
-  fpen = list(1:dim(X)[2])
+  method = "BFGS",
+  gradient = FALSE,
+  functional = 0,
+  reltol = 1e-09,
+  trace = 0
 )
 }
 \arguments{
-\item{Y}{an nxq matrix of responses. The ith row contains the q-variate response
-of the ith individual.}
+\item{Y}{an \eqn{n\times q} matrix of responses. The \eqn{i}th row contains the \eqn{q}-variate response
+of the \eqn{i}th individual.}
 
-\item{X}{an nxp matrix of p explaining variables, The ith row contains the values
-of p explaining variables for the ith individual.}
+\item{X}{an \eqn{n\times p} matrix of \eqn{p} explaining variables, The \eqn{i}th row contains the values
+of \eqn{p} explaining variables for the \eqn{i}th individual.}
 
-\item{initialB}{initial value of the coefficient matrix}
+\item{initialB}{a \eqn{(p+1)\times q} matrix of initial regression coefficients}
 
 \item{lambda1}{the tuning parameter \eqn{\lambda_1} for the lasso penalty}
 
 \item{lambda2}{the tuning parameter \eqn{\lambda_2} for the fusion penalty}
 
-\item{lpen}{gives the lasso penalized coefficients. For example, lpen=c(2,5:8)
-means that the coefficient vectors \eqn{\beta_2, \beta_5,...,\beta_8} are penalized.}
+\item{method}{the optimization method to be used when functional=1 or 2 and \eqn{\lambda_2>0}. The choices are "BFGS", "Nelder-Mead",
+"CG", "L-BFGS-B", "SANN", "Brent" The default method is "BFGS". See the Details of the
+function optim in package stats.}
 
-\item{fpen}{a list of blocks of fusion penalized coefficients. For example,
-fpen=list(2:5,10:20) means that the fusion penalty is
-\eqn{\lambda_2[||\beta_3-\beta_2||+...+||\beta_5-\beta_4||+||\beta_{11}-\beta_{10}||+...+||\beta_{20}-\beta_{19}||}}
+\item{gradient}{a logical evaluating to TRUE or FALSE indicating whether gradient is used when method="BFGS".}
+
+\item{functional}{functional penalty. If functional=0, then the functional penalty is
+\eqn{\lambda_2\sum_{j=2}^{p}||\beta_{j}-\beta_{j-1}||}.
+If functional=1, then the functional penalty
+is \eqn{\lambda_2\sum_{j=1}^p\sum_{k=2}^q|\beta_{j,k}-\beta_{j,k-1}|}. If functional=2,
+then the functional penalty is \eqn{\lambda_2\sum_{k=2}^q||\beta^{(k)}-\beta^{(k-1)}||}.}
+
+\item{reltol}{Relative convergence tolerance of the function optim.}
+
+\item{trace}{Non-negative integer. If positive, tracing information on the progress of the optimization is produced.}
 }
 \value{
 A list containing the following components:
@@ -43,6 +55,7 @@ A list containing the following components:
 \item{lambda2}{the tuning parameter \eqn{\lambda_2} for the fusion-penalty}
 \item{iter}{the number of iterations}
 \item{runtime}{the runtime of the function.}
+\item{convergence}{convergence of the optimization routine. 0 indicates successful completion.}
 \item{value}{the minimized value of the objective function.}
 }
 }

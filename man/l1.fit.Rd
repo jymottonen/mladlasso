@@ -27,6 +27,7 @@ A list containing the following components:
 \item{initial}{initial value of the coefficient matrix}
 \item{iter}{the number of iterations}
 \item{value}{the minimized value of the objective function}
+\item{convergence}{convergence of the optimization routine. 0 indicates successful completion.}
 }
 }
 \description{

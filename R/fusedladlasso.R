@@ -2,18 +2,24 @@
 #'
 #' \code{fusedladlasso} is used to fit the multivariate fused LAD-lasso regression model. 
 #'
-#' @param Y an nxq matrix of responses. The ith row contains the q-variate response
-#' of the ith individual.
-#' @param X an nxp matrix of p explaining variables, The ith row contains the values
-#' of p explaining variables for the ith individual.
-#' @param initialB initial value of the coefficient matrix
+#' @param Y an \eqn{n\times q} matrix of responses. The \eqn{i}th row contains the \eqn{q}-variate response
+#' of the \eqn{i}th individual.
+#' @param X an \eqn{n\times p} matrix of \eqn{p} explaining variables, The \eqn{i}th row contains the values
+#' of \eqn{p} explaining variables for the \eqn{i}th individual.
+#' @param initialB a \eqn{(p+1)\times q} matrix of initial regression coefficients
 #' @param lambda1 the tuning parameter \eqn{\lambda_1} for the lasso penalty
 #' @param lambda2 the tuning parameter \eqn{\lambda_2} for the fusion penalty
-#' @param lpen gives the lasso penalized coefficients. For example, lpen=c(2,5:8)
-#' means that the coefficient vectors \eqn{\beta_2, \beta_5,...,\beta_8} are penalized.
-#' @param fpen a list of blocks of fusion penalized coefficients. For example, 
-#' fpen=list(2:5,10:20) means that the fusion penalty is 
-#' \eqn{\lambda_2[||\beta_3-\beta_2||+...+||\beta_5-\beta_4||+||\beta_{11}-\beta_{10}||+...+||\beta_{20}-\beta_{19}||}
+#' @param method the optimization method to be used when functional=1 or 2 and \eqn{\lambda_2>0}. The choices are "BFGS", "Nelder-Mead", 
+#' "CG", "L-BFGS-B", "SANN", "Brent" The default method is "BFGS". See the Details of the 
+#' function optim in package stats.
+#' @param gradient a logical evaluating to TRUE or FALSE indicating whether gradient is used when method="BFGS".
+#' @param functional functional penalty. If functional=0, then the functional penalty is 
+#' \eqn{\lambda_2\sum_{j=2}^{p}||\beta_{j}-\beta_{j-1}||}.
+#' If functional=1, then the functional penalty
+#' is \eqn{\lambda_2\sum_{j=1}^p\sum_{k=2}^q|\beta_{j,k}-\beta_{j,k-1}|}. If functional=2, 
+#' then the functional penalty is \eqn{\lambda_2\sum_{k=2}^q||\beta^{(k)}-\beta^{(k-1)}||}.
+#' @param reltol Relative convergence tolerance of the function optim.
+#' @param trace Non-negative integer. If positive, tracing information on the progress of the optimization is produced.
 #' @details 
 #' Here are the details of the function...
 #' @return A list containing the following components:
@@ -24,6 +30,7 @@
 #' \item{lambda2}{the tuning parameter \eqn{\lambda_2} for the fusion-penalty}
 #' \item{iter}{the number of iterations}
 #' \item{runtime}{the runtime of the function.}
+#' \item{convergence}{convergence of the optimization routine. 0 indicates successful completion.}
 #' \item{value}{the minimized value of the objective function.}
 #' }
 #' @references 
@@ -50,22 +57,19 @@
 #' out <-lambda1.cv(Y,X,lambda1.min = 0.0001,lambda1.max = 0.1,len1=10,lambda2 = 0)
 #' out
 #' }
+#' @importFrom stats optim optimize rnorm
+#' @importFrom MASS ginv
+#' @import SpatialNP
 #' @export
 fusedladlasso<-function(Y, X, initialB=NULL, lambda1=0, lambda2=0, 
-                        lpen=1:dim(X)[2], fpen=list(1:dim(X)[2]))
+                        method="BFGS",gradient=FALSE,functional=0,
+                        reltol=1e-9,trace=0)
 {
   if(is.data.frame(Y))Y<-as.matrix(Y)
   if(is.data.frame(X))X<-as.matrix(X)
   if(dim(Y)[2]<2)stop("response should be at least 2-dimensional!")
   if(dim(X)[1]!=dim(Y)[1])stop("response matrix Y and design matrix X
                                  should have equal number of rows!")
-  nblocks<-length(lengths(fpen)) #The number of blocks
-  conc<-NULL
-  for(blk in 1:nblocks)conc<-c(conc,fpen[[blk]])
-  if(anyDuplicated(conc)!=0)stop("blocks: the blocks should not overlap!")
-  isect<-intersect(1:dim(X)[2],conc)
-  if(length(isect)<length(conc))
-    stop(paste("the blocks should contain only integers from 1 to ",dim(X)[2],sep=""))
   warn.init<-options()$warn
   options(warn=-1)
   q<-ncol(Y)     #The number of traits
@@ -73,74 +77,148 @@ fusedladlasso<-function(Y, X, initialB=NULL, lambda1=0, lambda2=0,
   n<-nrow(Y)     #The number of cases   
   Y0<-Y
   X0<-X
-  if(is.null(colnames(Y)))
-    colnames(Y)<-paste("y",1:q,sep="")
-  if(is.null(colnames(X)))
-    colnames(X)<-paste("x",1:p,sep="")
-  lpen<-sort(lpen)
-  fused.id<-NULL
-  for(i in 1:nblocks)
+
+  penalty1<-function(B)
   {
-    id<-min(fpen[[i]]):(max(fpen[[i]])-1)
-    fused.id<-c(fused.id,id)
+    p<-nrow(B)-1
+    q<-ncol(B)
+    mat1<-cbind(0,diag(p))
+    mat2<-rbind(0,diag(q-1))-rbind(diag(q-1),0)
+    sum(abs(mat1%*%B%*%mat2))
   }
-  fused.id<-sort(fused.id)
-  if((lambda1==0)&(lambda2>0))
+  
+  penalty2<-function(B)
   {
-    Y2<-matrix(0,p-1,q) 
-    Y2<-Y2[fused.id,]
-    y<-rbind(Y,Y2)
-    W<-cbind(0,diag(p-1))-cbind(diag(p-1),0)
-    X<-cbind(1,X)
-    X2<-cbind(0,n*lambda2*W)
-    X2<-X2[fused.id,]
-    x<-rbind(X,X2)  
+    p<-nrow(B)-1
+    q<-ncol(B)
+    mat1<-cbind(0,diag(p))
+    mat2<-rbind(0,diag(q-1))-rbind(diag(q-1),0)
+    diff<-mat1%*%B%*%mat2
+    sum(sqrt(diag(t(diff)%*%diff)))
   }
-  else if((lambda1>0)&(lambda2==0))
+  
+  if(lambda1>0)
   {
-    Y1<-matrix(0,p,q)
-    Y1<-Y1[lpen,]
-    y<-rbind(Y,Y1)   
-    X<-cbind(1,X)
-    X1<-cbind(0,n*lambda1*diag(p))
-    X1<-X1[lpen,]
-    x<-rbind(X,X1)  
+    y1<-matrix(0,p,q)
+    y<-rbind(Y,y1)   
+    x<-cbind(1,X)
+    x1<-cbind(0,n*lambda1*diag(p))
+    x<-rbind(x,x1)  
   }
-  else if((lambda1>0)&(lambda2>0))
-  {
-    Y1<-matrix(0,p,q) 
-    Y1<-Y1[lpen,]
-    Y2<-matrix(0,p-1,q) 
-    Y2<-Y2[fused.id,]
-    y<-rbind(Y,Y1,Y2)   
-    X<-cbind(1,X)
-    X1<-cbind(0,n*lambda1*diag(p))
-    X1<-X1[lpen,]
-    W<-cbind(0,diag(p-1))-cbind(diag(p-1),0)
-    X2<-cbind(0,n*lambda2*W)
-    X2<-X2[fused.id,]
-    x<-rbind(X,X1,X2)  
-  }
-  else if((lambda1==0)&(lambda2==0))
+  else if(lambda1==0)
   {
     y<-Y
     x<-cbind(1,X)
   }
   else
-    stop("lambda1 and lambda2 should be non-negative numbers")
+    stop("lambda1 should be a non-negative number")
+  
+  if((functional==0)&(lambda2>0))
+  {
+    Y2<-matrix(0,p-1,q) 
+    y<-rbind(y,Y2)   
+    W<-cbind(0,diag(p-1))-cbind(diag(p-1),0)
+    X2<-cbind(0,n*lambda2*W)
+    x<-rbind(x,X2)  
+  }
+  
+  if((functional==1)&(lambda2>0))
+  {
+    fn<-function(beta,Y,X,lambda1,lambda2){
+      B<-matrix(beta,p+1,q)
+      E<-Y-X%*%B
+      lad<-mean(sqrt(diag(E%*%t(E))))
+      lad+lambda2*penalty1(B)
+    }
+    dfn<-function(beta,Y,X,lambda1,lambda2){
+      B<-matrix(beta,p+1,q)
+      E<-Y-X%*%B
+      norm.E <-  sqrt(rowSums(E^2))
+      eps.S<-1e-6
+      if (min(norm.E) < eps.S) norm.E <- ifelse(norm.E < eps.S, eps.S, norm.E)
+      E.sign <- sweep(E,1,norm.E, "/")
+      dlad<- -(1/n)*c(t(X)%*%E.sign)
+      #derivative of the functional penalty part 
+      mat1<-cbind(0,diag(p))
+      mat2<-rbind(0,diag(q-1))-rbind(diag(q-1),0)
+      dfunctional<-lambda2*c(sign(mat1%*%B%*%mat2)%*%t(mat2))
+      dlad+dfunctional
+    }
+  }
+  else if((functional==2)&(lambda2>0))
+  {
+    fn<-function(beta,Y,X,lambda1,lambda2){
+      B<-matrix(beta,p+1,q)
+      E<-Y-X%*%B
+      lad<-mean(sqrt(diag(E%*%t(E))))
+      lad+lambda2*penalty2(B)
+    }
+    dfn<-function(beta,Y,X,lambda1,lambda2){
+      B<-matrix(beta,p+1,q)
+      E<-Y-X%*%B
+      norm.E <-  sqrt(rowSums(E^2))
+      eps.S<-1e-6
+      if (min(norm.E) < eps.S) norm.E <- ifelse(norm.E < eps.S, eps.S, norm.E)
+      E.sign <- sweep(E,1,norm.E, "/")
+      dlad<- -(1/n)*c(t(X)%*%E.sign)
+      #derivative of the functional penalty part 
+      mat1<-cbind(0,diag(p))
+      mat2<-rbind(0,diag(q-1))-rbind(diag(q-1),0)
+      diff<-mat1%*%B%*%mat2
+      norm.diff <-  sqrt(colSums(diff^2))
+      if (min(norm.diff) < eps.S) norm.diff <- ifelse(norm.diff < eps.S, eps.S, norm.diff)
+      W <- sweep(diff,2,norm.diff, "/")
+      dfunctional<-lambda2*rbind(0,W%*%t(mat2))
+      dlad+dfunctional
+    }
+  }
   
   begt=proc.time()[[3]]
-  #mod<-mv.l1lm(y~-1+x, score="s",stand="o",maxiter = 20000,eps = 1e-6, eps.S = 1e-6)
-  #beta<-as.matrix(coefficients(mod))
-  mod<-l1.fit(y,x,initialB,maxiter = 20000,eps = 1e-6, eps.S = 1e-6)
-  beta<-as.matrix(mod$coefficients)
-  resid<-Y0-cbind(1,X0)%*%beta
-  n1<-dim(y)[1]
-  value<-(n1/n)*mod$value
-  runt<-proc.time()[[3]]-begt
-  rownames(beta)<-c("Int",colnames(x)[-1])
-  colnames(beta)<-colnames(y)
-  fit<-list(beta=beta,residuals=resid,lambda1=lambda1,lambda2=lambda2,iter=mod$iter,runtime=runt,value=value)
+  if(is.null(initialB)){
+    #B0<-rnorm((p+1)*q)
+    B0<-ginv(t(x)%*%x)%*%t(x)%*%y
+    beta0<-c(B0)
+  }
+  else{
+    B0<-initialB
+    beta0<-c(B0)
+  }
+  
+  if((functional>0)&(lambda2>0)&gradient)
+    gradfn<-dfn
+  else
+    gradfn<-NULL
+  
+  if(functional==0|lambda2==0)
+  {
+    mod<-l1.fit(y,x,initialB,maxiter = 20000,eps = 1e-6, eps.S = 1e-6)
+    beta<-as.matrix(mod$coefficients)
+    resid<-Y0-cbind(1,X0)%*%beta
+    value<-mod$value
+    convergence<-mod$convergence
+    iter<-mod$iter
+  }
+  else 
+  {
+    res<-optim(beta0, fn, gr=gradfn, method=method,
+               control=list(maxit=100000,reltol=reltol,trace=trace), 
+               Y=y, X=x, lambda1=lambda1, lambda2=lambda2)
+    beta<-matrix(res$par,p+1,q)
+    resid<-Y0-cbind(1,X0)%*%beta
+    value<-res$value
+    convergence<-res$convergence
+    iter<-NULL
+  }
+  runt=proc.time()[[3]]-begt
+  
+  if(is.null(colnames(Y0)))
+    colnames(Y0)<-paste("y",1:q,sep="")
+  if(is.null(colnames(X0)))
+    colnames(X0)<-paste("x",1:p,sep="")
+  
+  rownames(beta)<-c("Int",colnames(X0))
+  colnames(beta)<-colnames(Y0)
+  fit<-list(beta=beta,residuals=resid,lambda1=lambda1,lambda2=lambda2,runtime=runt,convergence=convergence,iter=iter,value=value)
   class(fit) <- "fusedladlasso"
   return(fit)
 }

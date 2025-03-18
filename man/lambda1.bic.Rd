@@ -12,9 +12,7 @@ lambda1.bic(
   lambda1.max = 5,
   len1 = 10,
   lambda2 = 0,
-  scale = 10,
-  lpen = 1:dim(X)[2],
-  fpen = list(1:dim(X)[2])
+  scale = 10
 )
 }
 \arguments{
@@ -33,13 +31,6 @@ lambda1.bic(
 \item{lambda2}{the (fixed) value of the tuning parameter \eqn{\lambda_2}.}
 
 \item{scale}{the scale parameter of BIC.}
-
-\item{lpen}{gives the lasso penalized coefficients. For example, lpen=c(2,5:8)
-means that the coefficient vectors \eqn{\beta_2, \beta_5,...,\beta_8} are penalized.}
-
-\item{fpen}{a list of blocks of fusion penalized coefficients. For example,
-fpen=list(2:5,10:20) means that the fusion penalty is
-\eqn{\lambda_2[||\beta_3-\beta_2||+...+||\beta_5-\beta_4||+||\beta_{11}-\beta_{10}||+...+||\beta_{20}-\beta_{19}||}}
 }
 \value{
 A list with the following components
