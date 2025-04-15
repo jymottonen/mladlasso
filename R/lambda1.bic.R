@@ -10,7 +10,6 @@
 #' @param lambda1.max the maximum value of the grid of \eqn{\lambda_1}'s.
 #' @param len1 the number of values in the grid of \eqn{\lambda_1}'s
 #' @param lambda2 the (fixed) value of the tuning parameter \eqn{\lambda_2}. 
-#' @param scale the scale parameter of BIC.
 #' @details 
 #' Here are the details of the function...
 #' @return A list with the following components
@@ -47,7 +46,7 @@
 #' plot(out)
 #' }
 #' @export
-lambda1.bic<-function(Y,X,lad=TRUE,lambda1.min=0,lambda1.max=5,len1=10,lambda2=0,scale=10)
+lambda1.bic<-function(Y,X,lad=TRUE,lambda1.min=0,lambda1.max=5,len1=10,lambda2=0)
 {
   if(is.data.frame(Y))Y<-as.matrix(Y)
   if(is.data.frame(X))X<-as.matrix(X)
@@ -70,40 +69,44 @@ lambda1.bic<-function(Y,X,lad=TRUE,lambda1.min=0,lambda1.max=5,len1=10,lambda2=0
   value<-rep(0,len1)
   
   if(lad){
-    if(n>p)
-      mod0<-fusedladlasso(Y,X,lambda1=0,lambda2=0)
-    else
-      mod0<-fusedladlasso(Y,X,lambda1=0.001,lambda2=0)
+    #if(n>p)
+    #  mod0<-fusedladlasso(Y,X,lambda1=0,lambda2=0)
+    #else
+      mod0<-fusedladlasso(Y,X,lambda1=0.1,lambda2=0)
   }
   else{
-    if(n>p)
-      mod0<-fusedlasso(Y,X,lambda1=0,lambda2=0)
-    else
-      mod0<-fusedlasso(Y,X,lambda1=0.001,lambda2=0)
+    #if(n>p)
+    #  mod0<-fusedlasso(Y,X,lambda1=0,lambda2=0)
+    #else
+      mod0<-fusedlasso(Y,X,lambda1=0.1,lambda2=0)
   }
   beta0<-mod0$beta
   E<-Y-cbind(1,X)%*%beta0
+
   if(lad){
     const<-sqrt(n/(2*(n-p-1)))*gamma(q/2)/gamma((q+1)/2)
     sigmahat<-const*mean(sqrt(diag(E%*%t(E))))
+    print(sigmahat)
     scale<-sigmahat
   }
   else{
     const<-n/(q*(n-p-1))
     sigmahat2<-const*mean(diag(E%*%t(E)))
-    scale<-sigmahat2
     sigmahat<-sqrt(sigmahat2)
+    scale<-sigmahat2
   }
-  
+
+  initB<-beta0
   for(i1 in 1:len1)
   {
     if(lad){
-      mod1<-fusedladlasso(Y,X,lambda1=lbd1[i1],lambda2=lambda2)
+      mod1<-fusedladlasso(Y,X,initialB = initB,lambda1=lbd1[i1],lambda2=lambda2)
     }
     else{
       mod1<-fusedlasso(Y,X,lambda1=lbd1[i1],lambda2=lambda2)
     }
     beta<-mod1$beta
+    initB<-beta
     E<-Y-cbind(1,X)%*%beta
     if(lad){
       value[i1]<-mean(sqrt(diag(E%*%t(E))))
@@ -113,6 +116,7 @@ lambda1.bic<-function(Y,X,lad=TRUE,lambda1.min=0,lambda1.max=5,len1=10,lambda2=0
     }
     h[i1]<-sum(abs(beta[-1,])>1.0e-8)
     bic[i1]<-value[i1]/scale+h[i1]*log(n)/n
+    print(paste("i1=",i1," ,lambda1=",lbd1[i1],", h=",h[i1],", bic=",bic[i1]))
   }
   ind.min<-which.min(bic)
   lbdmin<-lbd1[ind.min]

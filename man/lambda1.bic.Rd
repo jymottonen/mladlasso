@@ -11,8 +11,7 @@ lambda1.bic(
   lambda1.min = 0,
   lambda1.max = 5,
   len1 = 10,
-  lambda2 = 0,
-  scale = 10
+  lambda2 = 0
 )
 }
 \arguments{
@@ -29,8 +28,6 @@ lambda1.bic(
 \item{len1}{the number of values in the grid of \eqn{\lambda_1}'s}
 
 \item{lambda2}{the (fixed) value of the tuning parameter \eqn{\lambda_2}.}
-
-\item{scale}{the scale parameter of BIC.}
 }
 \value{
 A list with the following components

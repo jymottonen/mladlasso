@@ -82,6 +82,7 @@ lambda1.cv<-function(Y,X,lad=TRUE,lambda1.min=0,lambda1.max=5,len1=10,lambda2=0)
   mae<-rep(0,5)
   mse<-rep(0,5)
   
+  initB<-NULL
   groups<-rep(1:5,times=m)
   for(i1 in 1:len1)
   {
@@ -89,7 +90,7 @@ lambda1.cv<-function(Y,X,lad=TRUE,lambda1.min=0,lambda1.max=5,len1=10,lambda2=0)
     {   
       if(lad)
       {
-        mod1<-fusedladlasso(Y[groups!=j,],X[groups!=j,],
+        mod1<-fusedladlasso(Y[groups!=j,],X[groups!=j,],initialB = initB,
                             lambda1=lbd1[i1],lambda2=lambda2)
       }
       else
@@ -98,6 +99,7 @@ lambda1.cv<-function(Y,X,lad=TRUE,lambda1.min=0,lambda1.max=5,len1=10,lambda2=0)
                         lambda1=lbd1[i1],lambda2=lambda2)
       }
       beta<-mod1$beta
+      initB<-beta
       E<-Y[groups==j,]-cbind(1,X[groups==j,])%*%beta
       mae[j]<-mean(sqrt(diag(E%*%t(E))))
       #mae[j]<-median(sqrt(diag(E%*%t(E))))
