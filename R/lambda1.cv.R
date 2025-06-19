@@ -1,6 +1,6 @@
-#' Selection of \eqn{\lambda_1} using cross-validation
+#' Selection of \eqn{\lambda_1} using k-fold cross-validation
 #'
-#' lambda1.cv is used to find the tuning parameter  \eqn{\lambda_1} of the lasso penalty by using 5-fold 
+#' lambda1.cv is used to find the tuning parameter  \eqn{\lambda_1} of the lasso penalty by using k-fold 
 #' cross-validation. The tuning parameter \eqn{\lambda_2} of the fusion penalty  is fixed.
 #'
 #' @param Y an nxq matrix.
@@ -9,7 +9,13 @@
 #' @param lambda1.min the minimum value of the grid of \eqn{\lambda_1}'s.
 #' @param lambda1.max the maximum value of the grid of \eqn{\lambda_1}'s.
 #' @param len1 the number of values in the grid of \eqn{\lambda_1}'s
-#' @param lambda2 the (fixed) value of the tuning parameter \eqn{\lambda_2}. 
+#' @param lambda2 the (fixed) value of the tuning parameter \eqn{\lambda_2}.
+#' @param functional functional penalty. If functional=0, then the functional penalty is 
+#' \eqn{\lambda_2\sum_{j=2}^{p}||\beta_{j}-\beta_{j-1}||}.
+#' If functional=1, then the functional penalty
+#' is \eqn{\lambda_2\sum_{j=1}^p\sum_{k=2}^q|\beta_{j,k}-\beta_{j,k-1}|}. If functional=2, 
+#' then the functional penalty is \eqn{\lambda_2\sum_{k=2}^q||\beta^{(k)}-\beta^{(k-1)}||}.
+#' @param k the number of folds. 
 #' @details 
 #' Here are the details of the function...
 #' @return A list with the following components
@@ -51,10 +57,11 @@
 #' }
 #' @importFrom stats median
 #' @export
-lambda1.cv<-function(Y,X,lad=TRUE,lambda1.min=0,lambda1.max=5,len1=10,lambda2=0)
+lambda1.cv<-function(Y,X,lad=TRUE,lambda1.min=0,lambda1.max=5,
+                     len1=10,lambda2=0,functional=0,k=5)
 {
   #
-  # 5-fold cross-validation for lambda1 with lambda2 fixed
+  # k-fold cross-validation for lambda1 with lambda2 fixed
   #
   if(is.data.frame(Y))Y<-as.matrix(Y)
   if(is.data.frame(X))X<-as.matrix(X)
@@ -68,10 +75,11 @@ lambda1.cv<-function(Y,X,lad=TRUE,lambda1.min=0,lambda1.max=5,len1=10,lambda2=0)
   if(is.null(lambda1.min))
     lambda1.min<-0.3*lambda1.max
   lbd1<-seq(lambda1.min,lambda1.max,length=len1)
+  
   n<-nrow(X)
-  jakoj<-n%%5
-  kok.osa<-floor(n/5)
-  m<-rep(kok.osa,5)
+  jakoj<-n%%k
+  kok.osa<-floor(n/k)
+  m<-rep(kok.osa,k)
   if(jakoj>0){
     m[1:jakoj]<-m[1:jakoj]+1
   }
@@ -79,19 +87,23 @@ lambda1.cv<-function(Y,X,lad=TRUE,lambda1.min=0,lambda1.max=5,len1=10,lambda2=0)
   cv.mae<-rep(0,len1)
   cv.mse<-rep(0,len1)
   h<-rep(0,len1)
-  mae<-rep(0,5)
-  mse<-rep(0,5)
+  mae<-rep(0,k)
+  mse<-rep(0,k)
   
-  initB<-NULL
-  groups<-rep(1:5,times=m)
+  initialB<-NULL
+  groups<-rep(1:k,times=m)
+  print(groups)
   for(i1 in 1:len1)
   {
-    for(j in 1:5)
+    print(paste("i1=",i1))
+    for(j in 1:k)
     {   
+      print(paste("j=",j))
       if(lad)
       {
-        mod1<-fusedladlasso(Y[groups!=j,],X[groups!=j,],initialB = initB,
-                            lambda1=lbd1[i1],lambda2=lambda2)
+        mod1<-fusedladlasso(Y[groups!=j,],X[groups!=j,],initialB = initialB,
+                            lambda1=lbd1[i1],lambda2=lambda2,functional=functional)
+        if(is.null(initialB))initialB<-mod1$beta
       }
       else
       {
@@ -110,7 +122,8 @@ lambda1.cv<-function(Y,X,lad=TRUE,lambda1.min=0,lambda1.max=5,len1=10,lambda2=0)
     cv.mse[i1]<-mean(mse)
     if(lad)
     {
-      mod1<-fusedladlasso(Y,X,lambda1=lbd1[i1],lambda2=lambda2)
+      mod1<-fusedladlasso(Y,X,lambda1=lbd1[i1],lambda2=lambda2,
+                          functional=functional,initialB = initialB)
     }
     else
     {

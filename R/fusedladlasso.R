@@ -63,7 +63,7 @@
 #' @export
 fusedladlasso<-function(Y, X, initialB=NULL, lambda1=0, lambda2=0, 
                         method="BFGS",gradient=FALSE,functional=0,
-                        reltol=1e-9,trace=0)
+                        reltol=1e-8,trace=0)
 {
   if(is.data.frame(Y))Y<-as.matrix(Y)
   if(is.data.frame(X))X<-as.matrix(X)
@@ -201,7 +201,7 @@ fusedladlasso<-function(Y, X, initialB=NULL, lambda1=0, lambda2=0,
   else 
   {
     res<-optim(beta0, fn, gr=gradfn, method=method,
-               control=list(maxit=100000,reltol=reltol,trace=trace), 
+               control=list(maxit=100,reltol=reltol,trace=trace,REPORT=1), 
                Y=y, X=x, lambda1=lambda1, lambda2=lambda2)
     beta<-matrix(res$par,p+1,q)
     resid<-Y0-cbind(1,X0)%*%beta

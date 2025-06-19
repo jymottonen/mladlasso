@@ -2,7 +2,7 @@
 % Please edit documentation in R/lambda1.cv.R
 \name{lambda1.cv}
 \alias{lambda1.cv}
-\title{Selection of \eqn{\lambda_1} using cross-validation}
+\title{Selection of \eqn{\lambda_1} using k-fold cross-validation}
 \usage{
 lambda1.cv(
   Y,
@@ -11,7 +11,8 @@ lambda1.cv(
   lambda1.min = 0,
   lambda1.max = 5,
   len1 = 10,
-  lambda2 = 0
+  lambda2 = 0,
+  k = 5
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ lambda1.cv(
 \item{len1}{the number of values in the grid of \eqn{\lambda_1}'s}
 
 \item{lambda2}{the (fixed) value of the tuning parameter \eqn{\lambda_2}.}
+
+\item{k}{the number of folds.}
 }
 \value{
 A list with the following components
@@ -51,7 +54,7 @@ of \eqn{\lambda_1} that minimizes the ith precision measure is lambda1.max.}
 }
 }
 \description{
-lambda1.cv is used to find the tuning parameter  \eqn{\lambda_1} of the lasso penalty by using 5-fold
+lambda1.cv is used to find the tuning parameter  \eqn{\lambda_1} of the lasso penalty by using k-fold
 cross-validation. The tuning parameter \eqn{\lambda_2} of the fusion penalty  is fixed.
 }
 \details{
