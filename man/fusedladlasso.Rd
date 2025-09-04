@@ -13,7 +13,7 @@ fusedladlasso(
   method = "BFGS",
   gradient = FALSE,
   functional = 0,
-  reltol = 1e-09,
+  reltol = 1e-08,
   trace = 0
 )
 }

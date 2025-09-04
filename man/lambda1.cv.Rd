@@ -12,6 +12,7 @@ lambda1.cv(
   lambda1.max = 5,
   len1 = 10,
   lambda2 = 0,
+  functional = 0,
   k = 5
 )
 }
@@ -29,6 +30,12 @@ lambda1.cv(
 \item{len1}{the number of values in the grid of \eqn{\lambda_1}'s}
 
 \item{lambda2}{the (fixed) value of the tuning parameter \eqn{\lambda_2}.}
+
+\item{functional}{functional penalty. If functional=0, then the functional penalty is
+\eqn{\lambda_2\sum_{j=2}^{p}||\beta_{j}-\beta_{j-1}||}.
+If functional=1, then the functional penalty
+is \eqn{\lambda_2\sum_{j=1}^p\sum_{k=2}^q|\beta_{j,k}-\beta_{j,k-1}|}. If functional=2,
+then the functional penalty is \eqn{\lambda_2\sum_{k=2}^q||\beta^{(k)}-\beta^{(k-1)}||}.}
 
 \item{k}{the number of folds.}
 }
