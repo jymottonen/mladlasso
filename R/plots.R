@@ -41,13 +41,15 @@ plot.fusedladlasso<-function(x, xlab="Explaining variable", ylim=c(min(x$beta[-1
   if(output=="PDF")dev.off()
 }
 
-#' plot.functionalladlasso
+#' plot.adfusedladlasso
 #'
-#' Plot method for objects of class "functionalladlasso". 
+#' Plot method for objects of class "adfusedladlasso". 
 #'
-#' @param x an object of class functionalladlasso.
+#' @param x an object of class fusedladlasso.
+#' @param p number of explaining variables
+#' @param q number of response variables
+#' @param k plot of the kth iteration 
 #' @param xlab a title for the x axis. The default is "Explaining variable".
-#' @param ylim a numeric vector of length 2, giving the y coordinate range.
 #' @param output the plot is exported to a PDF file \code{file} if \code{output}="PDF". Defaults \code{output}="screen". 
 #' @param lambda1 the tuning parameter \eqn{\lambda_1} for the lasso penalty.
 #' @param lambda2 the tuning parameter \eqn{\lambda_2} for the fusion penalty.
@@ -60,17 +62,19 @@ plot.fusedladlasso<-function(x, xlab="Explaining variable", ylim=c(min(x$beta[-1
 #' @importFrom grDevices dev.off pdf
 #' @importFrom graphics abline axis lines points title
 #' @export
-plot.functionalladlasso<-function(x, xlab="Explaining variable", ylim=c(min(x$beta[-1,]),max(x$beta[-1,])),  
+plot.adfusedladlasso<-function(x, p=x$p, q=x$q, k=1, xlab="Explaining variable",  
                              output="screen", lambda1=x$lambda1, lambda2=x$lambda2, 
                              file="Rplots.pdf", width=7, height=7, ...)
 {
-  beta<-x$beta[-1,]
+  B<-x$B[k,]
+  beta<-matrix(B,p+1,q)
+  beta<-beta[-1,]
   p<-dim(beta)[1]
   q<-dim(beta)[2]
   beta.min<-apply(beta,1,min)
   beta.max<-apply(beta,1,max)
   if(output=="PDF")pdf(file=file,width=width,height=height)
-  plot(1:p,beta[,1],ylim=ylim,cex=0.5,pch=1,col=1,
+  plot(1:p,beta[,1],cex=0.5,pch=1,col=1,
        xlab=xlab,ylab="",xaxt="n")
   title(ylab = expression(beta))
   axis(1,1:p,paste("x",1:p,sep=""))
