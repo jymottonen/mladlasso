@@ -73,8 +73,10 @@ plot.adfusedladlasso<-function(x, p=x$p, q=x$q, k=1, xlab="Explaining variable",
   q<-dim(beta)[2]
   beta.min<-apply(beta,1,min)
   beta.max<-apply(beta,1,max)
+  ymin<-min(beta)
+  ymax<-max(beta)
   if(output=="PDF")pdf(file=file,width=width,height=height)
-  plot(1:p,beta[,1],cex=0.5,pch=1,col=1,
+  plot(1:p,beta[,1],cex=0.5,pch=1,col=1, ylim=c(ymin,ymax),
        xlab=xlab,ylab="",xaxt="n")
   title(ylab = expression(beta))
   axis(1,1:p,paste("x",1:p,sep=""))
