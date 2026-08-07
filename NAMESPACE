@@ -4,6 +4,7 @@ S3method(plot,adfusedladlasso)
 S3method(plot,bic)
 S3method(plot,cv)
 S3method(plot,fusedladlasso)
+S3method(plot,smoothedladlasso)
 S3method(summary,fusedladlasso)
 export(adfusedladlasso)
 export(bootladlasso)
@@ -12,22 +13,29 @@ export(fusedlasso)
 export(lambda1.bic)
 export(lambda1.cv)
 export(samplesplit)
+export(smoothedladlasso)
 export(stability)
 import(MNM)
 import(SpatialNP)
 import(matrixStats)
 importFrom(MASS,ginv)
-importFrom(grDevices,dev.off)
-importFrom(grDevices,pdf)
-importFrom(graphics,abline)
-importFrom(graphics,axis)
-importFrom(graphics,lines)
-importFrom(graphics,points)
-importFrom(graphics,title)
-importFrom(stats,coef)
-importFrom(stats,median)
-importFrom(stats,optim)
-importFrom(stats,optimize)
-importFrom(stats,pchisq)
-importFrom(stats,quantile)
-importFrom(stats,rnorm)
+importFrom(grDevices,
+  dev.off,
+  pdf
+)
+importFrom(graphics,
+  abline,
+  axis,
+  lines,
+  points,
+  title
+)
+importFrom(stats,
+  coef,
+  median,
+  optim,
+  optimize,
+  pchisq,
+  quantile,
+  rnorm
+)
