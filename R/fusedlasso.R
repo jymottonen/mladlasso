@@ -27,7 +27,7 @@
 #' An Approach Based on Spatial Signs and Ranks}, Springer. 
 #' \url{https://dx.doi.org/10.1007/978-1-4419-0468-3}.
 #' @seealso 
-#' \code{\link{lambda1.cv}} for cross-validation of lambda1. 
+#' \code{\link{lambda1f.cv}} for cross-validation of lambda1. 
 #' @examples
 #' \dontrun{
 #' data("simdat")

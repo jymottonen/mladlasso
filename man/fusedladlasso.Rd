@@ -76,7 +76,7 @@ out2<-fusedladlasso(Y,X,lambda1=0.2,lambda2=0)
 plot(out2)
 out3<-fusedladlasso(Y,X,lambda1=0.2,lambda2=0.2)
 plot(out3)
-out <-lambda1.cv(Y,X,lambda1.min = 0.0001,lambda1.max = 0.1,len1=10,lambda2 = 0)
+out <-lambda1f.cv(Y,X,lambda1.min = 0.0001,lambda1.max = 0.1,len1=10,lambda2 = 0)
 out
 }
 }
@@ -90,5 +90,5 @@ The Package MNM, \emph{Journal of Statistical Software},
 \strong{43}, 1-28. \url{https://doi.org/10.18637/jss.v043.i05}.
 }
 \seealso{
-\code{\link{lambda1.cv}} for cross-validation of lambda1.
+\code{\link{lambda1f.cv}} for cross-validation of lambda1.
 }

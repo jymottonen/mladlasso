@@ -4,7 +4,7 @@
 \alias{smoothedladlasso}
 \title{Multivariate smoothed LAD-lasso}
 \usage{
-smoothedladlasso(Y, X, tp, initialB = NULL, lambda = 0, h = 1)
+smoothedladlasso(Y, X, tp = 1:dim(Y)[2], initialB = NULL, lambda = 0, h = 1)
 }
 \arguments{
 \item{Y}{an \eqn{n\times q} matrix of responses. The \eqn{i}th row contains the \eqn{q}-variate response
@@ -60,5 +60,5 @@ The Package MNM, \emph{Journal of Statistical Software},
 \strong{43}, 1-28. \url{https://doi.org/10.18637/jss.v043.i05}.
 }
 \seealso{
-\code{\link{lambda1.cv}} for cross-validation of lambda1.
+\code{\link{lambda1s.cv}} for cross-validation of lambda1.
 }

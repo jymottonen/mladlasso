@@ -1,6 +1,6 @@
-#' Multivariate smoothed LAD-lasso
+#' Multivariate adaptive smoothed LAD-lasso
 #'
-#' \code{smoothedladlasso} is used to fit the multivariate fused LAD-lasso regression model. 
+#' \code{adsmoothedladlasso} is used to fit the multivariate fused LAD-lasso regression model. 
 #'
 #' @param Y an \eqn{n\times q} matrix of responses. The \eqn{i}th row contains the \eqn{q}-variate response
 #' of the \eqn{i}th individual.
@@ -9,6 +9,7 @@
 #' @param tp a \eqn{q}-dimensional vector of time points.
 #' @param initialB a \eqn{(p+1)\times q} matrix of initial regression coefficients
 #' @param lambda the tuning parameter \eqn{\lambda} for the lasso penalty
+#' @param G the number of adaptive steps 
 #' @param h the bandwidth parameter
 #' @details 
 #' Here are the details of the function...
@@ -29,24 +30,24 @@
 #' The Package MNM, \emph{Journal of Statistical Software}, 
 #' \strong{43}, 1-28. \url{https://doi.org/10.18637/jss.v043.i05}.
 #' @seealso 
-#' \code{\link{lambda1s.cv}} for cross-validation of lambda1. 
+#' \code{\link{lambda1f.cv}} for cross-validation of lambda1. 
 #' @examples
 #' \dontrun{
 #' data("simdat")
 #' Y<-simdat[,1:2]
 #' X<-simdat[,3:52]
-#' out1<-smoothedladlasso(Y,X,lambda1=0,lambda2=0)
+#' out1<-adsmoothedladlasso(Y,X,lambda1=0,lambda2=0,G=5)
 #' plot(out1)
-#' out2<-smoothedladlasso(Y,X,lambda1=0.2,lambda2=0)
+#' out2<-adsmoothedladlasso(Y,X,lambda1=0.2,lambda2=0,G=5)
 #' plot(out2)
-#' out3<-smoothedladlasso(Y,X,lambda1=0.2,lambda2=0.2)
+#' out3<-adsmoothedladlasso(Y,X,lambda1=0.2,lambda2=0.2,G=5)
 #' plot(out3)
 #' }
 #' @importFrom stats optim optimize rnorm
 #' @importFrom MASS ginv
 #' @import SpatialNP
 #' @export
-smoothedladlasso<-function(Y, X, tp=1:dim(Y)[2], initialB=NULL, lambda=0, h=1)
+adsmoothedladlasso<-function(Y, X, tp, initialB=NULL, lambda=0, h=1, G=10)
 {
   if(is.data.frame(Y))Y<-as.matrix(Y)
   if(is.data.frame(X))X<-as.matrix(X)
@@ -119,7 +120,7 @@ smoothedladlasso<-function(Y, X, tp=1:dim(Y)[2], initialB=NULL, lambda=0, h=1)
   rownames(beta)<-c("Int",colnames(X0))
   colnames(beta)<-colnames(Y0)
   fit<-list(beta=beta,residuals=resid,lambda=lambda,convergence=convergence,runtime=runt,iter=iter)
-  class(fit) <- "smoothedladlasso"
+  class(fit) <- "adsmoothedladlasso"
   return(fit)
 }
 

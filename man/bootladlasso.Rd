@@ -63,5 +63,5 @@ The Package MNM, \emph{Journal of Statistical Software},
 \strong{43}, 1-28. \url{https://doi.org/10.18637/jss.v043.i05}.
 }
 \seealso{
-\code{\link{lambda1.cv}} for cross-validation of lambda1.
+\code{\link{lambda1f.cv}} for cross-validation of lambda1.
 }

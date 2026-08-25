@@ -1,6 +1,6 @@
-#' Selection of \eqn{\lambda_1} using k-fold cross-validation
+#' Selection of \eqn{\lambda_1} of the fused LAD-lasso using k-fold cross-validation
 #'
-#' lambda1.cv is used to find the tuning parameter  \eqn{\lambda_1} of the lasso penalty by using k-fold 
+#' lambda1f.cv is used to find the tuning parameter  \eqn{\lambda_1} of the lasso penalty by using k-fold 
 #' cross-validation. The tuning parameter \eqn{\lambda_2} of the fusion penalty  is fixed.
 #'
 #' @param Y an nxq matrix.
@@ -52,12 +52,12 @@
 #' data("simdat")
 #' Y<-simdat[,1:2]
 #' X<-simdat[,3:52]
-#' out <-lambda1.cv(Y,X,lambda1.min = 0.0001,lambda1.max = 0.1,len1=10,lambda2 = 0)
+#' out <-lambda1f.cv(Y,X,lambda1.min = 0.0001,lambda1.max = 0.1,len1=10,lambda2 = 0)
 #' plot(out)
 #' }
 #' @importFrom stats median
 #' @export
-lambda1.cv<-function(Y,X,lad=TRUE,lambda1.min=0,lambda1.max=5,
+lambda1f.cv<-function(Y,X,lad=TRUE,lambda1.min=0,lambda1.max=5,
                      len1=10,lambda2=0,functional=0,k=5)
 {
   #
